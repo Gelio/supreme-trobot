@@ -1,4 +1,5 @@
 import typescript from "@rollup/plugin-typescript";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
 
 /** @type {import('rollup').RollupOptions} */
 const config = {
@@ -10,7 +11,7 @@ const config = {
     dir: "build/marketplaces",
     format: "cjs",
   },
-  plugins: [typescript()],
+  plugins: [typescript(), nodeResolve()],
 };
 
 export default config;

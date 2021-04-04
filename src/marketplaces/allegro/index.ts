@@ -1,4 +1,4 @@
-import { queueOperation } from "../common/queue-operation";
+import { createAppMessageBus } from "../common/messaging";
 
 const getOfferInfo = (offerWrapper: Element) => {
   const titleSelector = ".offer-card__title";
@@ -16,8 +16,6 @@ const getOfferInfo = (offerWrapper: Element) => {
 const getOffers = () => document.querySelectorAll(".offer-card-container");
 
 const getOffersInfo = () => Array.from(getOffers()).map(getOfferInfo);
-
-queueOperation();
 
 chrome.runtime.onMessage.addListener((message: any) => {
   if (message === "offers") {

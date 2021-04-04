@@ -8,9 +8,12 @@
     "test": "web-test-runner \"src/**/*.test.ts\""
   },
   "dependencies": {
-    "svelte": "^3.24.0"
+    "rxjs": "^6.6.7",
+    "svelte": "^3.24.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^11.2.1",
     "@rollup/plugin-typescript": "^8.2.1",
     "@snowpack/plugin-dotenv": "^2.0.5",
     "@snowpack/plugin-svelte": "^3.5.0",
