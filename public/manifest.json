@@ -8,5 +8,15 @@
     "default_popup": "index.html"
   },
   "permissions": ["tabs", "activeTab", "scripting"],
-  "host_permissions": ["https://allegrolokalnie.pl/*"]
+  "host_permissions": ["https://allegrolokalnie.pl/*", "https://olx.pl/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://allegrolokalnie.pl/*"],
+      "js": ["./marketplaces/allegro.js"]
+    },
+    {
+      "matches": ["https://olx.pl/*"],
+      "js": ["./marketplaces/olx.js"]
+    }
+  ]
 }

@@ -7,13 +7,11 @@
     const activeTab = (
       await chrome.tabs.query({ active: true, currentWindow: true })
     )[0];
-    chrome.scripting.executeScript({
-      files: ["./dist/marketplaces/allegro/index.js"],
-      target: { tabId: activeTab.id! },
-    });
+    console.log(activeTab);
     chrome.runtime.onMessage.addListener((message: any) => {
       console.log(message);
     });
+    chrome.tabs.sendMessage(activeTab.id!, "offers");
   }
 </script>
 
