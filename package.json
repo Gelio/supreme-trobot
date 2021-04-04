@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "snowpack dev",
+    "start": "snowpack build --watch",
     "build": "snowpack build",
     "test": "web-test-runner \"src/**/*.test.ts\""
   },
@@ -14,6 +14,7 @@
     "@snowpack/web-test-runner-plugin": "^0.2.0",
     "@testing-library/svelte": "^3.0.0",
     "@types/chai": "^4.2.13",
+    "@types/chrome": "0.0.134",
     "@types/mocha": "^8.2.0",
     "@types/snowpack-env": "^2.3.2",
     "@web/test-runner": "^0.12.0",
