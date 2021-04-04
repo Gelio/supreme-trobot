@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Supreme trobot",
+  "description": "Automate changing prices on local marketplace sites",
+  "version": "1.0.0",
+  "action": {
+    "default_title": "Supreme trobot",
+    "default_popup": "index.html"
+  }
+}
