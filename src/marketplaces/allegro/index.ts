@@ -1,15 +1,16 @@
 import {
   AppMessage,
+  createResponder,
   getOffersInfoMessage,
   OfferInfo,
 } from "../common/messaging";
 
 const getOfferInfo = (offerWrapper: Element): OfferInfo => {
-  const titleSelector = ".offer-card__title";
+  const titleSelector = "a.offer-card__title";
   const priceSelector = ".price";
   const editText = "Edytuj";
 
-  const title = offerWrapper.querySelector(titleSelector);
+  const title = offerWrapper.querySelector<HTMLAnchorElement>(titleSelector);
   const price = offerWrapper.querySelector(priceSelector);
   const editAnchor: HTMLAnchorElement | undefined = Array.from(
     offerWrapper.querySelectorAll<HTMLAnchorElement>("a")
@@ -22,6 +23,7 @@ const getOfferInfo = (offerWrapper: Element): OfferInfo => {
 
   return {
     title: title.textContent!,
+    url: title.href,
     price: price.textContent!,
     editUrl: editAnchor.href,
   };
@@ -33,13 +35,13 @@ const getOffersInfo = () => Array.from(getOffers()).map(getOfferInfo);
 
 chrome.runtime.onConnect.addListener((port) => {
   // TODO: validate port.sender.id (should match the extension ID)
+  const responders = [
+    createResponder(port, getOffersInfoMessage, getOffersInfo),
+  ];
   const listener = (message: AppMessage) => {
     console.log(message);
-    if (getOffersInfoMessage.request.is(message)) {
-      const offers = getOffersInfo();
-      console.log(offers);
-      port.postMessage(getOffersInfoMessage.response.make(offers));
-    } else if (message.type === "next") {
+    responders.forEach((responder) => responder(message));
+    if (message.type === "next") {
       document.querySelector<HTMLAnchorElement>(".pagination__next")?.click();
     }
   };
