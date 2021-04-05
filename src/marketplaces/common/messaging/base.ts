@@ -17,6 +17,12 @@ export interface AppMessageDescription<T extends string, Data> {
   is: (message: AppMessage) => message is AppMessage<T, Data>;
 }
 
+export type MessageFromDescription<
+  D extends AppMessageDescription<string, any>
+> = D extends AppMessageDescription<infer T, infer Data>
+  ? AppMessage<T, Data>
+  : never;
+
 export const createMessageDescription = <
   Data = unknown,
   T extends string = string

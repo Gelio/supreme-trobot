@@ -1,10 +1,6 @@
-import {
-  AppMessage,
-  createAppMessagePair,
-  createMessageDescription,
-} from "./base";
+import { createAppMessagePair, createMessageDescription } from "./base";
 
-export interface OfferInfo {
+export interface Offer {
   title: string;
   url: string;
   // TODO: parse price to be a number
@@ -12,8 +8,13 @@ export interface OfferInfo {
   editUrl: string;
 }
 
-export type GetOffersInfoMessage = AppMessage<"get offers info", OfferInfo[]>;
-export const getOffersInfoMessage = createAppMessagePair({
-  request: createMessageDescription<never>("get offers info"),
-  response: createMessageDescription<OfferInfo[]>("get offers info response"),
+export interface OffersPage {
+  offers: Offer[];
+  currentPage: number;
+  totalPages: number;
+}
+
+export const getOffersPageMessage = createAppMessagePair({
+  request: createMessageDescription<never>("get offers page"),
+  response: createMessageDescription<OffersPage>("get offers page response"),
 });

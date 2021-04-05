@@ -1,11 +1,12 @@
 import {
   AppMessage,
   createResponder,
-  getOffersInfoMessage,
-  OfferInfo,
+  getOffersPageMessage,
+  MessageFromDescription,
+  Offer,
 } from "../common/messaging";
 
-const getOfferInfo = (offerWrapper: Element): OfferInfo => {
+const getOffer = (offerWrapper: Element): Offer => {
   const titleSelector = "a.offer-card__title";
   const priceSelector = ".price";
   const editText = "Edytuj";
@@ -29,14 +30,56 @@ const getOfferInfo = (offerWrapper: Element): OfferInfo => {
   };
 };
 
-const getOffers = () => document.querySelectorAll(".offer-card-container");
+const getOffersContainer = () =>
+  document.querySelectorAll(".offer-card-container");
 
-const getOffersInfo = () => Array.from(getOffers()).map(getOfferInfo);
+const getOffers = () => Array.from(getOffersContainer()).map(getOffer);
+
+const getPaginationState = () => {
+  const paginationSelector = ".pagination__pages";
+
+  const paginationWrapper = document.querySelector(paginationSelector);
+  if (!paginationWrapper) {
+    throw new Error("Cannot find pagination wrapper");
+  }
+
+  const currentPageInput = paginationWrapper.querySelector<HTMLInputElement>(
+    'input[name="page"]'
+  );
+  if (!currentPageInput) {
+    throw new Error("Cannot find current page input");
+  }
+
+  const totalPagesRegexp = /z (\d)+/;
+  const totalPagesMatches = totalPagesRegexp.exec(
+    paginationWrapper.textContent!
+  );
+  if (!totalPagesMatches) {
+    throw new Error("Cannot match total pages");
+  }
+
+  return {
+    currentPage: parseInt(currentPageInput.value, 10),
+    totalPages: parseInt(totalPagesMatches[1], 10),
+  };
+};
+
+const getOffersPage = (): MessageFromDescription<
+  typeof getOffersPageMessage["response"]
+>["data"] => {
+  const { currentPage, totalPages } = getPaginationState();
+
+  return {
+    offers: getOffers(),
+    totalPages,
+    currentPage,
+  };
+};
 
 chrome.runtime.onConnect.addListener((port) => {
   // TODO: validate port.sender.id (should match the extension ID)
   const responders = [
-    createResponder(port, getOffersInfoMessage, getOffersInfo),
+    createResponder(port, getOffersPageMessage, getOffersPage),
   ];
   const listener = (message: AppMessage) => {
     console.log(message);

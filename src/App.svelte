@@ -1,5 +1,5 @@
 <script lang="typescript">
-  import { getOffersInfoMessage } from "./marketplaces/common/messaging";
+  import { getOffersPageMessage } from "./marketplaces/common/messaging";
   function reloadExtension() {
     chrome.runtime.reload();
   }
@@ -13,7 +13,7 @@
     port.onMessage.addListener((message: any) => {
       console.log(message);
     });
-    port.postMessage(getOffersInfoMessage.request.make());
+    port.postMessage(getOffersPageMessage.request.make());
   }
 </script>
 
