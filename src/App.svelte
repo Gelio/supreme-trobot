@@ -8,10 +8,11 @@
       await chrome.tabs.query({ active: true, currentWindow: true })
     )[0];
     console.log(activeTab);
-    chrome.runtime.onMessage.addListener((message: any) => {
+    const port = chrome.tabs.connect(activeTab.id!);
+    port.onMessage.addListener((message: any) => {
       console.log(message);
     });
-    chrome.tabs.sendMessage(activeTab.id!, "offers");
+    port.postMessage("offers");
   }
 </script>
 
