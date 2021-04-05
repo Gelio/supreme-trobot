@@ -2,6 +2,7 @@ import {
   AppMessage,
   createResponder,
   getOffersPageMessage,
+  goToNextPageMessage,
   MessageFromDescription,
   Offer,
 } from "../common/messaging";
@@ -76,17 +77,21 @@ const getOffersPage = (): MessageFromDescription<
   };
 };
 
+const goToNextPage = (): MessageFromDescription<
+  typeof goToNextPageMessage["response"]
+>["data"] => {
+  document.querySelector<HTMLAnchorElement>(".pagination__next")?.click();
+};
+
 chrome.runtime.onConnect.addListener((port) => {
   // TODO: validate port.sender.id (should match the extension ID)
   const responders = [
     createResponder(port, getOffersPageMessage, getOffersPage),
+    createResponder(port, goToNextPageMessage, goToNextPage),
   ];
   const listener = (message: AppMessage) => {
-    console.log(message);
+    console.log("Handling message", message);
     responders.forEach((responder) => responder(message));
-    if (message.type === "next") {
-      document.querySelector<HTMLAnchorElement>(".pagination__next")?.click();
-    }
   };
 
   port.onMessage.addListener(listener);

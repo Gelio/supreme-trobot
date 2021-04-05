@@ -1,5 +1,13 @@
 <script lang="typescript">
-  import { getOffersPageMessage } from "./marketplaces/common/messaging";
+  import {
+    getOffersPageMessage,
+    goToNextPageMessage,
+  } from "./marketplaces/common/messaging";
+  import type {
+    MessageFromDescription,
+    AppMessage,
+  } from "./marketplaces/common/messaging";
+
   function reloadExtension() {
     chrome.runtime.reload();
   }
@@ -9,11 +17,46 @@
       await chrome.tabs.query({ active: true, currentWindow: true })
     )[0];
     console.log(activeTab);
-    const port = chrome.tabs.connect(activeTab.id!);
-    port.onMessage.addListener((message: any) => {
-      console.log(message);
-    });
-    port.postMessage(getOffersPageMessage.request.make());
+
+    function getOffersPage() {
+      return new Promise<
+        MessageFromDescription<typeof getOffersPageMessage["response"]>
+      >((resolve, reject) => {
+        const port = chrome.tabs.connect(activeTab.id!);
+        port.onMessage.addListener((message: AppMessage) => {
+          if (!getOffersPageMessage.response.is(message)) {
+            reject(
+              new Error(`Unexpected message received of type: ${message.type}`)
+            );
+            return;
+          }
+
+          resolve(message);
+        });
+        port.postMessage(getOffersPageMessage.request.make());
+      });
+    }
+
+    const { data: initialPage } = await getOffersPage();
+    let nextPage = initialPage.currentPage + 1;
+    const totalPages = initialPage.totalPages;
+    const offers = initialPage.offers;
+
+    while (nextPage <= totalPages) {
+      const port = chrome.tabs.connect(activeTab.id!);
+      port.postMessage(goToNextPageMessage.request.make());
+      // TODO: check if the page is loaded instead of using a timeout
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const page = await getOffersPage();
+      if (nextPage !== page.data.currentPage) {
+        throw new Error("Got data from unexpected page");
+      }
+
+      offers.push(...page.data.offers);
+      nextPage++;
+    }
+
+    console.log("Got all offers", offers);
   }
 </script>
 

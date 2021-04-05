@@ -18,3 +18,8 @@ export const getOffersPageMessage = createAppMessagePair({
   request: createMessageDescription<never>("get offers page"),
   response: createMessageDescription<OffersPage>("get offers page response"),
 });
+
+export const goToNextPageMessage = createAppMessagePair({
+  request: createMessageDescription<never>("go to next page"),
+  response: createMessageDescription<void>("go to next page success"),
+});
