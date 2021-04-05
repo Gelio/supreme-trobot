@@ -1,8 +1,8 @@
-interface OfferInfo {
-  title: string;
-  price: string;
-  editUrl: string;
-}
+import {
+  AppMessage,
+  getOffersInfoMessage,
+  OfferInfo,
+} from "../common/messaging";
 
 const getOfferInfo = (offerWrapper: Element): OfferInfo => {
   const titleSelector = ".offer-card__title";
@@ -32,12 +32,14 @@ const getOffers = () => document.querySelectorAll(".offer-card-container");
 const getOffersInfo = () => Array.from(getOffers()).map(getOfferInfo);
 
 chrome.runtime.onConnect.addListener((port) => {
-  const listener = (message: any) => {
-    if (message === "offers") {
+  // TODO: validate port.sender.id (should match the extension ID)
+  const listener = (message: AppMessage) => {
+    console.log(message);
+    if (getOffersInfoMessage.request.is(message)) {
       const offers = getOffersInfo();
       console.log(offers);
-      port.postMessage(offers);
-    } else if (message === "next") {
+      port.postMessage(getOffersInfoMessage.response.make(offers));
+    } else if (message.type === "next") {
       document.querySelector<HTMLAnchorElement>(".pagination__next")?.click();
     }
   };
