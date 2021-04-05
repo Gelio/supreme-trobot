@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "concurrently -k 'npm:build:app:watch' 'npm:build:content-scripts:watch'",
+    "start": "concurrently -c 'green,yellow' -k 'npm:build:app:watch' 'npm:build:content-scripts:watch'",
     "build:app": "snowpack build",
     "build:app:watch": "snowpack build --watch",
     "build:content-scripts": "rollup -c",
