@@ -6,7 +6,8 @@
     "build:app:watch": "snowpack build --watch",
     "build:content-scripts": "rollup -c",
     "build:content-scripts:watch": "rollup -c --watch",
-    "test": "web-test-runner \"src/**/*.test.ts\""
+    "test": "web-test-runner \"src/**/*.test.ts\"",
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
     "rxjs": "^6.6.7",
