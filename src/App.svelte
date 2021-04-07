@@ -7,6 +7,7 @@
     MessageFromDescription,
     AppMessage,
   } from "./marketplaces/common/messaging";
+  import { waitFor } from "./marketplaces/common/wait-for";
 
   function reloadExtension() {
     chrome.runtime.reload();
@@ -45,14 +46,15 @@
     while (nextPage <= totalPages) {
       const port = chrome.tabs.connect(activeTab.id!);
       port.postMessage(goToNextPageMessage.request.make());
-      // TODO: check if the page is loaded instead of using a timeout
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      const page = await getOffersPage();
-      if (nextPage !== page.data.currentPage) {
-        throw new Error("Got data from unexpected page");
-      }
 
-      offers.push(...page.data.offers);
+      const currentPage = await waitFor(async () => {
+        const page = await getOffersPage();
+        if (nextPage === page.data.currentPage) {
+          return page;
+        }
+      });
+
+      offers.push(...currentPage.data.offers);
       nextPage++;
     }
 
