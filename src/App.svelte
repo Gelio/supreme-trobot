@@ -24,6 +24,15 @@
         MessageFromDescription<typeof getOffersPageMessage["response"]>
       >((resolve, reject) => {
         const port = chrome.tabs.connect(activeTab.id!);
+        port.onDisconnect.addListener(() => {
+          console.log("Port disconnected");
+          if (chrome.runtime.lastError) {
+            console.log("Chrome runtime error", chrome.runtime.lastError);
+            reject(chrome.runtime.lastError);
+            return;
+          }
+          reject(new Error("Port closed"));
+        });
         port.onMessage.addListener((message: AppMessage) => {
           if (!getOffersPageMessage.response.is(message)) {
             reject(
