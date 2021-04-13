@@ -1,0 +1,70 @@
+import type { Offer } from "../common/messaging";
+
+const getOffer = (offerWrapper: Element): Offer => {
+  const titleSelector = "a.offer-card__title";
+  const priceSelector = ".price";
+  const editText = "Edytuj";
+
+  const title = offerWrapper.querySelector<HTMLAnchorElement>(titleSelector);
+  const price = offerWrapper.querySelector(priceSelector);
+  const editAnchor: HTMLAnchorElement | undefined = Array.from(
+    offerWrapper.querySelectorAll<HTMLAnchorElement>("a")
+  ).filter((element) => element.textContent === editText)[0];
+  if (!title) {
+    throw new Error("Cannot find the title element");
+  } else if (!price) {
+    throw new Error("Cannot find the price element");
+  }
+
+  return {
+    title: title.textContent!,
+    url: title.href,
+    price: price.textContent!,
+    editUrl: editAnchor.href,
+  };
+};
+
+const getOffersContainer = () =>
+  document.querySelectorAll(".offer-card-container");
+
+export const getOffers = () => Array.from(getOffersContainer()).map(getOffer);
+
+export const getPaginationState = () => {
+  const paginationSelector = ".pagination__pages";
+
+  const paginationWrapper = document.querySelector(paginationSelector);
+  if (!paginationWrapper) {
+    throw new Error("Cannot find pagination wrapper");
+  }
+
+  const currentPageInput = paginationWrapper.querySelector<HTMLInputElement>(
+    'input[name="page"]'
+  );
+  if (!currentPageInput) {
+    throw new Error("Cannot find current page input");
+  }
+
+  const totalPagesRegexp = /z (\d)+/;
+  const totalPagesMatches = totalPagesRegexp.exec(
+    paginationWrapper.textContent!
+  );
+  if (!totalPagesMatches) {
+    throw new Error("Cannot match total pages");
+  }
+
+  return {
+    currentPage: parseInt(currentPageInput.value, 10),
+    totalPages: parseInt(totalPagesMatches[1], 10),
+  };
+};
+
+export const goToNextPage = () => {
+  const nextPageButton = document.querySelector<HTMLAnchorElement>(
+    ".pagination__next"
+  );
+  if (!nextPageButton) {
+    throw new Error("Cannot find the next page button");
+  }
+
+  return nextPageButton.click();
+};
