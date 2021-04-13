@@ -10,6 +10,17 @@ export function createTab(
   });
 }
 
+export function updateTab(
+  tabId: number,
+  properties: chrome.tabs.UpdateProperties
+): Promise<chrome.tabs.Tab> {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.update(tabId, properties, (tab) =>
+      tab ? resolve(tab) : reject(new Error("Tab was not present"))
+    );
+  });
+}
+
 export function closeTab(tabId: number) {
   return new Promise((resolve) => {
     chrome.tabs.remove(tabId, resolve);

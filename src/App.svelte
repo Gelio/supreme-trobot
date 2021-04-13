@@ -14,5 +14,5 @@
 <div class="App">
   <button on:click={reloadExtension}>Reload extension</button>
   <button on:click={openAndRunAllegro}>Run Allegro</button>
-  {#if offers}{JSON.stringify(offers)}{/if}
+  {#if offers}{JSON.stringify(offers, null, 2)}{/if}
 </div>

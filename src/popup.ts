@@ -1,4 +1,4 @@
-import { closeTab, createTab, listen } from "./chrome-facade";
+import { closeTab, createTab, listen, updateTab } from "./chrome-facade";
 import { extensionId } from "./consts";
 import {
   MessageFromDescription,
@@ -15,11 +15,15 @@ export function reloadExtension() {
 
 export async function runAllegro() {
   const tab = await createTab({
-    url: "https://allegrolokalnie.pl/konto/oferty/aktywne",
+    //
     active: false,
   });
 
-  await waitForTabToBeReady(tab.id!);
+  const tabInitiallyReady = waitForTabToBeReady(tab.id!);
+  await updateTab(tab.id!, {
+    url: "https://allegrolokalnie.pl/konto/oferty/aktywne",
+  });
+  await tabInitiallyReady;
 
   const { data: initialPage } = await getOffersPage(tab.id!);
   let nextPage = initialPage.currentPage + 1;
@@ -28,8 +32,9 @@ export async function runAllegro() {
 
   while (nextPage <= totalPages) {
     const port = chrome.tabs.connect(tab.id!);
+    const tabReady = waitForTabToBeReady(tab.id!);
     port.postMessage(goToNextPageMessage.request.make());
-    await waitForTabToBeReady(tab.id!);
+    await tabReady;
 
     const currentPage = await waitFor(async () => {
       const page = await getOffersPage(tab.id!);
@@ -49,8 +54,6 @@ export async function runAllegro() {
   return offers;
 }
 
-// TODO: technically, we need to begin listening, then call some callback, and then wait for the event
-// (similar to cy.intercept and cy.wait)
 function waitForTabToBeReady(tabId: number) {
   return listen(chrome.runtime.onMessage, (message: AppMessage, sender) => {
     if (sender.tab!.id !== tabId || sender.id !== extensionId) {
