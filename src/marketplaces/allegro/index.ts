@@ -1,10 +1,11 @@
 import {
-  AppMessage,
   createResponder,
   getOffersPageMessage,
   goToNextPageMessage,
   MessageFromDescription,
 } from "../common/messaging";
+import type { AppMessage } from "../messaging";
+import { readyMessage } from "../messaging/messages";
 import {
   getOffers,
   getPaginationState,
@@ -39,3 +40,5 @@ chrome.runtime.onConnect.addListener((port) => {
     port.onMessage.removeListener(listener);
   });
 });
+
+chrome.runtime.sendMessage(readyMessage.make());

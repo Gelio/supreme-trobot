@@ -1,4 +1,5 @@
-import { createAppMessagePair, createMessageDescription } from "./base";
+import { createMessageDescription } from "@app/marketplaces/messaging";
+import { createAppMessagePair } from "./base";
 
 export interface Offer {
   title: string;
