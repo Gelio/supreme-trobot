@@ -16,6 +16,9 @@ module.exports = {
       },
     ],
   ],
+  alias: {
+    "@app": "./src",
+  },
   routes: [],
   optimize: {},
   packageOptions: {},
