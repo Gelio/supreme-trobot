@@ -1,7 +1,9 @@
 import typescript from "@rollup/plugin-typescript";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import alias from "@rollup/plugin-alias";
+import replace from "@rollup/plugin-replace";
 import path from "path";
+import dotenv from "dotenv";
 
 const projectRoot = path.resolve(__dirname);
 
@@ -19,7 +21,21 @@ const config = {
     typescript(),
     nodeResolve(),
     alias({ entries: { "@app": path.resolve(projectRoot, "src") } }),
+    replace(getSnowpackEnvironmentVariables()),
   ],
 };
 
 export default config;
+
+function getSnowpackEnvironmentVariables() {
+  const environmentVariables = dotenv.config();
+  const snowpackEnvironmentVariables = { ...environmentVariables.parsed };
+
+  Object.keys(environmentVariables.parsed)
+    .filter((name) => !name.startsWith("SNOWPACK_PUBLIC_"))
+    .forEach((name) => {
+      delete snowpackEnvironmentVariables[name];
+    });
+
+  return snowpackEnvironmentVariables;
+}

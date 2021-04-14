@@ -17,8 +17,9 @@
   "devDependencies": {
     "@rollup/plugin-alias": "^3.1.2",
     "@rollup/plugin-node-resolve": "^11.2.1",
+    "@rollup/plugin-replace": "^2.4.2",
     "@rollup/plugin-typescript": "^8.2.1",
-    "@snowpack/plugin-dotenv": "^2.0.5",
+    "@snowpack/plugin-dotenv": "^2.1.0",
     "@snowpack/plugin-svelte": "^3.5.0",
     "@snowpack/plugin-typescript": "^1.2.0",
     "@snowpack/web-test-runner-plugin": "^0.2.0",
@@ -30,6 +31,7 @@
     "@web/test-runner": "^0.12.0",
     "chai": "^4.2.0",
     "concurrently": "^6.0.0",
+    "dotenv": "^8.2.0",
     "rollup": "^2.44.0",
     "snowpack": "^3.0.1",
     "svelte-preprocess": "^4.0.8",
