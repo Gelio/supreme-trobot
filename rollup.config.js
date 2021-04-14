@@ -21,7 +21,10 @@ const config = {
     typescript(),
     nodeResolve(),
     alias({ entries: { "@app": path.resolve(projectRoot, "src") } }),
-    replace(getSnowpackEnvironmentVariables()),
+    replace({
+      ...getSnowpackEnvironmentVariables(),
+      preventAssignment: true,
+    }),
   ],
 };
 
