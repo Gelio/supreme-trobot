@@ -1,11 +1,10 @@
 import {
+  AppMessage,
   createResponder,
-  getOffersPageMessage,
-  goToNextPageMessage,
   MessageFromDescription,
-} from "../common/messaging";
-import type { AppMessage } from "../messaging";
-import { readyMessage } from "../messaging/messages";
+} from "@app/messaging";
+import { readyMessage } from "@app/messaging/messages";
+import { getOffersPageMessage, goToNextPageMessage } from "../common/messaging";
 import {
   getOffers,
   getPaginationState,
@@ -27,8 +26,8 @@ const getOffersPage = (): MessageFromDescription<
 chrome.runtime.onConnect.addListener((port) => {
   // TODO: validate port.sender.id (should match the extension ID)
   const responders = [
-    createResponder(port, getOffersPageMessage, getOffersPage),
-    createResponder(port, goToNextPageMessage, goToNextPage),
+    createResponder(getOffersPageMessage)(port, getOffersPage),
+    createResponder(goToNextPageMessage)(port, goToNextPage),
   ];
   const listener = (message: AppMessage) => {
     console.log("Handling message", message);
@@ -41,4 +40,4 @@ chrome.runtime.onConnect.addListener((port) => {
   });
 });
 
-chrome.runtime.sendMessage(readyMessage.make());
+chrome.runtime.sendMessage(readyMessage.create());

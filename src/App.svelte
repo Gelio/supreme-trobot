@@ -1,11 +1,11 @@
 <script lang="typescript">
   import { reloadExtension, runAllegro } from "./popup";
-  import type { OffersPage } from "./marketplaces/common/messaging";
+  import type { Offer } from "./marketplaces/common/messaging";
 
-  let offers: OffersPage | null = null;
+  let offers: Offer[] | null = null;
 
   async function openAndRunAllegro() {
-    runAllegro().then((offersPage) => {
+    runAllegro()?.then((offersPage) => {
       offers = offersPage;
     });
   }

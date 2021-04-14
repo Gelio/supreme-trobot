@@ -1,5 +1,7 @@
-import { createMessageDescription } from "@app/marketplaces/messaging";
-import { createAppMessagePair } from "./base";
+import {
+  createAppRequestResponsePair,
+  createMessageDescription,
+} from "@app/messaging";
 
 export interface Offer {
   title: string;
@@ -15,12 +17,12 @@ export interface OffersPage {
   totalPages: number;
 }
 
-export const getOffersPageMessage = createAppMessagePair({
+export const getOffersPageMessage = createAppRequestResponsePair({
   request: createMessageDescription<never>("get offers page"),
   response: createMessageDescription<OffersPage>("get offers page response"),
 });
 
-export const goToNextPageMessage = createAppMessagePair({
+export const goToNextPageMessage = createAppRequestResponsePair({
   request: createMessageDescription<never>("go to next page"),
   response: createMessageDescription<void>("go to next page success"),
 });
