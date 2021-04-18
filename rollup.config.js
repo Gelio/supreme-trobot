@@ -7,28 +7,39 @@ import dotenv from "dotenv";
 
 const projectRoot = path.resolve(__dirname);
 
-/** @type {import('rollup').RollupOptions} */
-const config = {
-  input: {
-    allegro: "src/marketplaces/allegro/index.ts",
-    olx: "src/marketplaces/olx/index.ts",
-  },
-  output: {
-    dir: "build/marketplaces",
-    format: "cjs",
-  },
-  plugins: [
-    typescript(),
-    nodeResolve(),
-    alias({ entries: { "@app": path.resolve(projectRoot, "src") } }),
-    replace({
-      ...getSnowpackEnvironmentVariables(),
-      preventAssignment: true,
-    }),
-  ],
+const inputFiles = {
+  "marketplaces/allegro": "src/marketplaces/allegro/index.ts",
+  "marketplaces/olx": "src/marketplaces/olx/index.ts",
+  "service-worker": "src/service-worker.ts",
 };
 
-export default config;
+/**
+ * NOTE: use multiple configs to inline all dependencies in each output file,
+ * without creating common chunks
+ */
+export default Object.keys(inputFiles).map((inputName) => {
+  /** @type {import('rollup').RollupOptions} */
+  const config = {
+    input: {
+      [inputName]: inputFiles[inputName],
+    },
+    output: {
+      dir: "build",
+      format: "cjs",
+    },
+    plugins: [
+      typescript(),
+      nodeResolve(),
+      alias({ entries: { "@app": path.resolve(projectRoot, "src") } }),
+      replace({
+        ...getSnowpackEnvironmentVariables(),
+        preventAssignment: true,
+      }),
+    ],
+  };
+
+  return config;
+});
 
 function getSnowpackEnvironmentVariables() {
   const environmentVariables = dotenv.config();
