@@ -43,12 +43,14 @@ export default Object.keys(inputFiles).map((inputName) => {
 
 function getSnowpackEnvironmentVariables() {
   const environmentVariables = dotenv.config();
-  const snowpackEnvironmentVariables = { ...environmentVariables.parsed };
+  const snowpackEnvironmentVariables = {};
 
   Object.keys(environmentVariables.parsed)
-    .filter((name) => !name.startsWith("SNOWPACK_PUBLIC_"))
+    .filter((name) => name.startsWith("SNOWPACK_PUBLIC_"))
     .forEach((name) => {
-      delete snowpackEnvironmentVariables[name];
+      snowpackEnvironmentVariables[`import.meta.env.${name}`] = JSON.stringify(
+        environmentVariables.parsed[name]
+      );
     });
 
   return snowpackEnvironmentVariables;
