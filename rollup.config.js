@@ -10,7 +10,7 @@ const projectRoot = path.resolve(__dirname);
 const inputFiles = {
   "marketplaces/allegro": "src/marketplaces/allegro/index.ts",
   "marketplaces/olx": "src/marketplaces/olx/index.ts",
-  "service-worker": "src/service-worker.ts",
+  "service-worker-bundled": "src/service-worker.ts",
 };
 
 /**
