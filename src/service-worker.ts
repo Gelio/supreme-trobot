@@ -40,6 +40,6 @@ chrome.runtime.onConnect.addListener((port) => {
 
       updateWorkerState({ type: "idle" });
       return offers;
-    });
+    })(message);
   });
 });
