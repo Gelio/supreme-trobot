@@ -1,18 +1,25 @@
 <script lang="typescript">
-  import { reloadExtension, runAllegro } from "./popup";
-  import type { Offer } from "./marketplaces/common/messaging";
+  import { connect, reloadExtension, runAllegro } from "./popup";
+  import { onMount } from "svelte";
+  import type { WorkerState } from "./worker";
 
-  let offers: Offer[] | null = null;
+  let workerState: WorkerState | null = null;
 
-  async function openAndRunAllegro() {
-    runAllegro()?.then((offersPage) => {
-      offers = offersPage;
+  onMount(() => {
+    connect((state) => {
+      workerState = state;
     });
-  }
+  });
 </script>
 
 <div class="App">
   <button on:click={reloadExtension}>Reload extension</button>
-  <button on:click={openAndRunAllegro}>Run Allegro</button>
-  {#if offers}{JSON.stringify(offers, null, 2)}{/if}
+  <button on:click={runAllegro}>Run Allegro</button>
+  {#if workerState?.offers}
+    <ul>
+      {#each workerState.offers as offer}
+        <li>{offer.title} for {offer.price}</li>
+      {/each}
+    </ul>
+  {/if}
 </div>

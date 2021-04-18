@@ -6,12 +6,15 @@ import {
 } from "./worker";
 import { getOffersWorkflow } from "./worker/workflows/get-offers";
 
-let workerState: WorkerState = { type: "idle" };
+let workerState: WorkerState = { status: { type: "idle" } };
 /** Ports to notify about worker state updates. I.e. any connected port */
 const portsToNotify: Set<chrome.runtime.Port> = new Set();
 
-function updateWorkerState(newState: WorkerState) {
-  workerState = newState;
+function updateWorkerState(stateUpdate: Partial<WorkerState>) {
+  workerState = {
+    ...workerState,
+    ...stateUpdate,
+  };
 
   portsToNotify.forEach((port) =>
     port.postMessage(workerStateUpdatedMessage.create(workerState))
@@ -28,17 +31,17 @@ chrome.runtime.onConnect.addListener((port) => {
   port.postMessage(workerStateUpdatedMessage.create(workerState));
 
   port.onMessage.addListener((message: AppMessage) => {
-    if (workerState.type === "working") {
+    if (workerState.status.type === "working") {
       console.error("Received message", message, "when worker was working");
       return;
     }
 
     createResponder(executeWorkflow)(port, async () => {
-      updateWorkerState({ type: "working" });
+      updateWorkerState({ status: { type: "working" } });
       const url = "https://allegrolokalnie.pl/konto/oferty/aktywne";
       const offers = await getOffersWorkflow(url);
 
-      updateWorkerState({ type: "idle" });
+      updateWorkerState({ status: { type: "idle" }, offers });
       return offers;
     })(message);
   });

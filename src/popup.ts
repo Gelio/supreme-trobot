@@ -1,9 +1,32 @@
 import { listen } from "./chrome-facade";
 import type { AppMessage } from "./messaging";
-import { executeWorkflow, workerStateUpdatedMessage } from "./worker";
+import {
+  executeWorkflow,
+  WorkerState,
+  workerStateUpdatedMessage,
+} from "./worker";
 
 export function reloadExtension() {
   chrome.runtime.reload();
+}
+
+export function connect(stateUpdateCb: (workerState: WorkerState) => void) {
+  const port = chrome.runtime.connect();
+  if (chrome.runtime.lastError) {
+    console.error(
+      "Cannot connect to the service worker",
+      chrome.runtime.lastError
+    );
+    return;
+  }
+
+  listen(port.onMessage, (message: AppMessage) => {
+    if (workerStateUpdatedMessage.is(message)) {
+      console.log("Worker state updated", message.data);
+      stateUpdateCb(message.data);
+      return;
+    }
+  });
 }
 
 export function runAllegro() {
