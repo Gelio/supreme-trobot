@@ -5,6 +5,8 @@ import {
 } from "@app/messaging";
 import { readyMessage } from "@app/messaging/messages";
 import { getOffersPageMessage, goToNextPageMessage } from "../common/messaging";
+import { changePriceMessage } from "../common/messaging/manage-offer";
+import { changePrice } from "./offer-page";
 import {
   getOffers,
   getPaginationState,
@@ -26,6 +28,7 @@ chrome.runtime.onConnect.addListener((port) => {
   const responders = [
     createResponder(getOffersPageMessage)(port, getOffersPage),
     createResponder(goToNextPageMessage)(port, goToNextPage),
+    createResponder(changePriceMessage)(port, changePrice),
   ];
   const listener = (message: AppMessage) => {
     console.log("Handling message", message);
