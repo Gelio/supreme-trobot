@@ -18,7 +18,7 @@ export interface OffersPage {
 }
 
 export const getOffersPageMessage = createAppRequestResponsePair({
-  request: createMessageDescription<never>("get offers page"),
+  request: createMessageDescription<void>("get offers page"),
   response: createMessageDescription<OffersPage>("get offers page response"),
 });
 

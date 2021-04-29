@@ -1,7 +1,7 @@
 import {
   AppMessage,
+  AppRequestResponder,
   createResponder,
-  MessageFromDescription,
 } from "@app/messaging";
 import { readyMessage } from "@app/messaging/messages";
 import { getOffersPageMessage, goToNextPageMessage } from "../common/messaging";
@@ -11,9 +11,7 @@ import {
   goToNextPage,
 } from "./offers-list-page";
 
-const getOffersPage = (): MessageFromDescription<
-  typeof getOffersPageMessage["response"]
->["data"] => {
+const getOffersPage: AppRequestResponder<typeof getOffersPageMessage> = () => {
   const { currentPage, totalPages } = getPaginationState();
 
   return {
