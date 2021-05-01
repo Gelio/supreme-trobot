@@ -1,7 +1,4 @@
-import {
-  createAppRequestResponsePair,
-  createMessageDescription,
-} from "@app/messaging";
+import { createAppRequestResponsePair } from "@app/messaging";
 
 export interface Offer {
   title: string;
@@ -17,12 +14,12 @@ export interface OffersPage {
   totalPages: number;
 }
 
-export const getOffersPageMessage = createAppRequestResponsePair({
-  request: createMessageDescription<void>("get offers page"),
-  response: createMessageDescription<OffersPage>("get offers page response"),
-});
+export const getOffersPageMessage = createAppRequestResponsePair<
+  "GET_OFFERS_PAGE",
+  void,
+  OffersPage
+>("GET_OFFERS_PAGE");
 
-export const goToNextPageMessage = createAppRequestResponsePair({
-  request: createMessageDescription<void>("go to next page"),
-  response: createMessageDescription<void>("go to next page success"),
-});
+export const goToNextPageMessage = createAppRequestResponsePair<"GO_TO_NEXT_PAGE">(
+  "GO_TO_NEXT_PAGE"
+);

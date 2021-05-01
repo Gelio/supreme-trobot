@@ -1,4 +1,7 @@
-import type { AppMessageDescription } from "../message-description";
+import {
+  AppMessageDescription,
+  createMessageDescription,
+} from "../message-description";
 
 /** A command with a response */
 export interface AppRequestResponsePair<
@@ -11,12 +14,17 @@ export interface AppRequestResponsePair<
   response: AppMessageDescription<R2T, R2D>;
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const createAppRequestResponsePair = <
-  R1T extends string,
-  R1D,
-  R2T extends string,
-  R2D
+  Name extends string,
+  R1D = void,
+  R2D = void
 >(
-  pair: AppRequestResponsePair<R1T, R1D, R2T, R2D>
-) => pair;
+  name: Name
+): AppRequestResponsePair<`${Name}/REQUEST`, R1D, `${Name}/RESPONSE`, R2D> => ({
+  request: createMessageDescription<R1D, `${Name}/REQUEST`>(
+    `${name}/REQUEST` as const
+  ),
+  response: createMessageDescription<R2D, `${Name}/RESPONSE`>(
+    `${name}/RESPONSE` as const
+  ),
+});

@@ -1,9 +1,6 @@
-import {
-  createAppRequestResponsePair,
-  createMessageDescription,
-} from "@app/messaging";
+import { createAppRequestResponsePair } from "@app/messaging";
 
-export const changePriceMessage = createAppRequestResponsePair({
-  request: createMessageDescription<{ newPrice: string }>("change price"),
-  response: createMessageDescription<void>("change price response"),
-});
+export const changePriceMessage = createAppRequestResponsePair<
+  "CHANGE_PRICE",
+  { newPrice: string }
+>("CHANGE_PRICE");
