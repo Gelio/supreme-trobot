@@ -10,7 +10,7 @@
   "permissions": ["tabs", "activeTab", "scripting"],
   "host_permissions": ["https://allegrolokalnie.pl/*", "https://olx.pl/*"],
   "background": {
-    "service_worker": "service-worker-bundled.js"
+    "service_worker": "service-worker.js"
   },
   "content_scripts": [
     {

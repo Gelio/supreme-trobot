@@ -1,5 +1,5 @@
 import type { AppRequestResponder } from "@app/messaging";
-import type { changePriceMessage } from "../common/messaging/manage-offer";
+import type { changePriceMessage } from "../../common/messaging/manage-offer";
 
 const priceSelector = 'input#cena[name="price"]';
 

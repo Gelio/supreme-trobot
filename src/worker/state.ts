@@ -6,11 +6,7 @@ export interface WorkerState {
   offers?: Offer[];
 }
 
-export type WorkerStatus =
-  | {
-      type: "idle";
-    }
-  | { type: "working" };
+export type WorkerStatus = { type: "idle" } | { type: "working" };
 
 export const workerStateUpdatedMessage = createMessageDescription<WorkerState>(
   "worker state updated"

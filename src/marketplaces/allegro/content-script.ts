@@ -9,12 +9,12 @@ import {
   tabReadyMessage,
 } from "../common/messaging";
 import { changePriceMessage } from "../common/messaging/manage-offer";
-import { changePrice } from "./offer-page";
+import { changePrice } from "./commands/offer-page";
 import {
   getOffers,
   getPaginationState,
   goToNextPage,
-} from "./offers-list-page";
+} from "./commands/offers-list-page";
 
 const getOffersPage: AppRequestResponder<typeof getOffersPageMessage> = () => {
   const { currentPage, totalPages } = getPaginationState();

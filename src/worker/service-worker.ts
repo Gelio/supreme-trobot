@@ -1,10 +1,10 @@
-import { AppMessage, createResponder } from "./messaging";
+import { AppMessage, createResponder } from "../messaging";
 import {
   executeWorkflow,
   WorkerState,
   workerStateUpdatedMessage,
-} from "./worker";
-import { getOffersWorkflow } from "./worker/workflows/get-offers";
+} from "../worker";
+import { getOffersWorkflow } from "./workflows/get-offers";
 
 let workerState: WorkerState = { status: { type: "idle" } };
 /** Ports to notify about worker state updates. I.e. any connected port */

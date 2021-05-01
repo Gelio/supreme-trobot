@@ -1,4 +1,4 @@
-import type { Offer } from "../common/messaging";
+import type { Offer } from "../../common/messaging";
 
 const getOffer = (offerWrapper: Element): Offer => {
   const titleSelector = "a.offer-card__title";
