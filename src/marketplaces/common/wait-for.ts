@@ -9,6 +9,8 @@ export const waitFor = async <Ret>(
 ): Promise<NonNullable<Ret>> => {
   let retriesLeft = 3;
 
+  const intermediateResults: unknown[] = [];
+
   // eslint-disable-next-line no-constant-condition
   while (true) {
     const result = await fn().catch(
@@ -19,6 +21,7 @@ export const waitFor = async <Ret>(
       return result as NonNullable<Ret>;
     }
 
+    intermediateResults.push(result);
     retriesLeft--;
     if (retriesLeft === 0) {
       break;
@@ -30,5 +33,6 @@ export const waitFor = async <Ret>(
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
+  console.error("Operation failed. Intermediate results:", intermediateResults);
   return Promise.reject(new Error("Operation failed"));
 };
