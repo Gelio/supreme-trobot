@@ -1,3 +1,3 @@
-import { createMessageDescription } from "../message-description";
+import { createMessageDescription } from "@app/messaging";
 
 export const tabReadyMessage = createMessageDescription("tab ready");

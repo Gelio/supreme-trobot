@@ -3,8 +3,11 @@ import {
   AppRequestResponder,
   createResponder,
 } from "@app/messaging";
-import { tabReadyMessage } from "@app/messaging/messages";
-import { getOffersPageMessage, goToNextPageMessage } from "../common/messaging";
+import {
+  getOffersPageMessage,
+  goToNextPageMessage,
+  tabReadyMessage,
+} from "../common/messaging";
 import { changePriceMessage } from "../common/messaging/manage-offer";
 import { changePrice } from "./offer-page";
 import {

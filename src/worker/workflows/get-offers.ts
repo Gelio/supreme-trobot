@@ -3,10 +3,10 @@ import { extensionId } from "@app/consts";
 import {
   getOffersPageMessage,
   goToNextPageMessage,
+  tabReadyMessage,
 } from "@app/marketplaces/common/messaging";
 import { waitFor } from "@app/marketplaces/common/wait-for";
 import type { AppMessage, MessageFromDescription } from "@app/messaging";
-import { tabReadyMessage } from "@app/messaging/messages";
 
 export async function getOffersWorkflow(
   url: string
