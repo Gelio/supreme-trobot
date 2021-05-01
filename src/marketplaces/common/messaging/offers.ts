@@ -23,6 +23,6 @@ export const getOffersPageMessage = createAppRequestResponsePair({
 });
 
 export const goToNextPageMessage = createAppRequestResponsePair({
-  request: createMessageDescription<never>("go to next page"),
+  request: createMessageDescription<void>("go to next page"),
   response: createMessageDescription<void>("go to next page success"),
 });

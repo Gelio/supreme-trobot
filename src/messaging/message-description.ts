@@ -12,10 +12,10 @@ export const createMessageDescription = <
 >(
   type: T
 ): AppMessageDescription<T, Data> => ({
-  create: ((data) => ({
+  create: (data: Data) => ({
     type,
     data,
-  })) as AppMessageFactory<T, Data>,
+  }),
   type,
   is: (message): message is AppMessage<T, Data> => message.type === type,
 });

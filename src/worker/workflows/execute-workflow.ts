@@ -6,6 +6,6 @@ import {
 } from "@app/messaging";
 
 export const executeWorkflow = createAppRequestResponsePair({
-  request: createMessageDescription<never>("execute workflow"),
+  request: createMessageDescription<void>("execute workflow"),
   response: createMessageDescription<Offer[]>("execute workflow response"),
 });
