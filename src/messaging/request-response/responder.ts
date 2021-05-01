@@ -1,6 +1,7 @@
-import type { AppMessage, ErrorMessage } from "../base";
+import type { AppMessage, AppErrorMessage } from "../base";
 import type { AppRequestResponsePair } from "./pair";
 
+/** A handler for the request. Must handle the request */
 export type AppRequestResponder<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ResponsePair extends AppRequestResponsePair<string, any, string, any>
@@ -23,20 +24,24 @@ export const createResponder = <
 ) => (
   port: chrome.runtime.Port,
   handler: AppRequestResponder<typeof messagePair>
-) => async (message: AppMessage<string, unknown>): Promise<void> => {
+  /** @returns nulls if the message cannot be handled */
+) => (message: AppMessage<string, unknown>): null | Promise<void> => {
   if (!messagePair.request.is(message)) {
-    return;
+    return null;
   }
 
-  try {
-    const responseData = await handler(message);
-    const response = messagePair.response.create(responseData);
-    port.postMessage(response);
-  } catch (error: unknown) {
-    const errorMessage: ErrorMessage = {
-      type: "error",
-      data: error,
-    };
-    port.postMessage(errorMessage);
-  }
+  // Use `then` to make get the handler return value into a promise
+  return Promise.resolve()
+    .then(() => handler(message))
+    .then((responseData) => {
+      const response = messagePair.response.create(responseData);
+      port.postMessage(response);
+    })
+    .catch((error) => {
+      const errorMessage: AppErrorMessage = {
+        type: "ERROR",
+        data: error,
+      };
+      port.postMessage(errorMessage);
+    });
 };

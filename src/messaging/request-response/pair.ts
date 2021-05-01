@@ -1,5 +1,6 @@
 import type { AppMessageDescription } from "../message-description";
 
+/** A command with a response */
 export interface AppRequestResponsePair<
   R1T extends string,
   R1D,

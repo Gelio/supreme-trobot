@@ -1,12 +1,13 @@
-import type { AppMessage, AppMessageFactory } from "./base";
+import type { AppMessage } from "./base";
 
 export interface AppMessageDescription<T extends string, Data> {
   type: T;
-  create: AppMessageFactory<T, Data>;
+  create: (data: Data) => AppMessage<T, Data>;
   is: (message: AppMessage) => message is AppMessage<T, Data>;
 }
 
 export const createMessageDescription = <
+  // NOTE: order of generic paramters allows easily specifying the Data and inferring T
   Data = void,
   T extends string = string
 >(

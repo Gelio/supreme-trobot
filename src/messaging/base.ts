@@ -3,8 +3,4 @@ export interface AppMessage<T extends string = string, Data = unknown> {
   data: Data;
 }
 
-export type ErrorMessage<E = unknown> = AppMessage<"error", E>;
-
-export type AppMessageFactory<T extends string, Data> = (
-  data: Data
-) => AppMessage<T, Data>;
+export type AppErrorMessage<E = unknown> = AppMessage<"ERROR", E>;
