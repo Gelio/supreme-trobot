@@ -6,28 +6,34 @@ import {
 } from "@app/marketplaces/common/messaging";
 import { waitFor } from "@app/marketplaces/common/wait-for";
 import type { AppMessage, MessageFromDescription } from "@app/messaging";
-import { readyMessage } from "@app/messaging/messages";
+import { tabReadyMessage } from "@app/messaging/messages";
 
-export async function getOffersWorkflow(url: string) {
+export async function getOffersWorkflow(
+  url: string
+): Promise<
+  import("/home/voreny/projects/personal/supreme-trobot/src/marketplaces/common/messaging/offers").Offer[]
+> {
   const tab = await createTab({ active: false });
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const tabId = tab.id!;
 
-  const tabInitiallyReady = waitForTabToBeReady(tab.id!);
-  await updateTab(tab.id!, { url });
+  const tabInitiallyReady = waitForTabToBeReady(tabId);
+  await updateTab(tabId, { url });
   await tabInitiallyReady;
 
-  const { data: initialPage } = await getOffersPage(tab.id!);
+  const { data: initialPage } = await getOffersPage(tabId);
   let nextPage = initialPage.currentPage + 1;
   const totalPages = initialPage.totalPages;
   const offers = initialPage.offers;
 
   while (nextPage <= totalPages) {
-    const port = chrome.tabs.connect(tab.id!);
-    const tabReady = waitForTabToBeReady(tab.id!);
+    const port = chrome.tabs.connect(tabId);
+    const tabReady = waitForTabToBeReady(tabId);
     port.postMessage(goToNextPageMessage.request.create());
     await tabReady;
 
     const currentPage = await waitFor(async () => {
-      const page = await getOffersPage(tab.id!);
+      const page = await getOffersPage(tabId);
       if (nextPage === page.data.currentPage) {
         return page;
       }
@@ -39,18 +45,18 @@ export async function getOffersWorkflow(url: string) {
   }
   console.log(offers);
 
-  await closeTab(tab.id!);
+  await closeTab(tabId);
 
   return offers;
 }
 
 function waitForTabToBeReady(tabId: number) {
   return listen(chrome.runtime.onMessage, (message: AppMessage, sender) => {
-    if (sender.tab!.id !== tabId || sender.id !== extensionId) {
+    if (sender.tab?.id !== tabId || sender.id !== extensionId) {
       return;
     }
 
-    if (!readyMessage.is(message)) {
+    if (!tabReadyMessage.is(message)) {
       console.error("Unexpected message received", message);
       return;
     }

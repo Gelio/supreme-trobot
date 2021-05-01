@@ -7,7 +7,8 @@
     "build:content-scripts": "rollup -c",
     "build:content-scripts:watch": "rollup -c --watch",
     "test": "web-test-runner \"src/**/*.test.ts\"",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src"
   },
   "dependencies": {
     "rxjs": "^6.6.7",
@@ -28,10 +29,14 @@
     "@types/chrome": "0.0.134",
     "@types/mocha": "^8.2.0",
     "@types/snowpack-env": "^2.3.2",
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/parser": "^4.22.0",
     "@web/test-runner": "^0.12.0",
     "chai": "^4.2.0",
     "concurrently": "^6.0.0",
     "dotenv": "^8.2.0",
+    "eslint": "^7.25.0",
+    "eslint-plugin-svelte3": "^3.2.0",
     "rollup": "^2.44.0",
     "snowpack": "^3.0.1",
     "svelte-preprocess": "^4.0.8",

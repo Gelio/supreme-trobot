@@ -1,4 +1,5 @@
 import { listen } from "./chrome-facade";
+import type { Offer } from "./marketplaces/common/messaging";
 import type { AppMessage } from "./messaging";
 import {
   executeWorkflow,
@@ -6,11 +7,13 @@ import {
   workerStateUpdatedMessage,
 } from "./worker";
 
-export function reloadExtension() {
+export function reloadExtension(): void {
   chrome.runtime.reload();
 }
 
-export function connect(stateUpdateCb: (workerState: WorkerState) => void) {
+export function connect(
+  stateUpdateCb: (workerState: WorkerState) => void
+): void {
   const port = chrome.runtime.connect();
   if (chrome.runtime.lastError) {
     console.error(
@@ -20,7 +23,7 @@ export function connect(stateUpdateCb: (workerState: WorkerState) => void) {
     return;
   }
 
-  listen(port.onMessage, (message: AppMessage) => {
+  void listen(port.onMessage, (message: AppMessage) => {
     if (workerStateUpdatedMessage.is(message)) {
       console.log("Worker state updated", message.data);
       stateUpdateCb(message.data);
@@ -29,7 +32,7 @@ export function connect(stateUpdateCb: (workerState: WorkerState) => void) {
   });
 }
 
-export function runAllegro() {
+export function runAllegro(): Promise<Offer[]> | undefined {
   const port = chrome.runtime.connect();
   if (chrome.runtime.lastError) {
     console.error(

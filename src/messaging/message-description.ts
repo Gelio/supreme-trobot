@@ -7,7 +7,7 @@ export interface AppMessageDescription<T extends string, Data> {
 }
 
 export const createMessageDescription = <
-  Data = unknown,
+  Data = void,
   T extends string = string
 >(
   type: T
@@ -22,6 +22,7 @@ export const createMessageDescription = <
 
 /** Retrieves the `AppMessage` type from an existing message description */
 export type MessageFromDescription<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   D extends AppMessageDescription<string, any>
 > = D extends AppMessageDescription<infer T, infer Data>
   ? AppMessage<T, Data>

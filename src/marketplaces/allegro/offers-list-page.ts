@@ -17,8 +17,10 @@ const getOffer = (offerWrapper: Element): Offer => {
   }
 
   return {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     title: title.textContent!,
     url: title.href,
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     price: price.textContent!,
     editUrl: editAnchor.href,
   };
@@ -27,8 +29,10 @@ const getOffer = (offerWrapper: Element): Offer => {
 const getOffersContainer = () =>
   document.querySelectorAll(".offer-card-container");
 
-export const getOffers = () => Array.from(getOffersContainer()).map(getOffer);
+export const getOffers = (): Offer[] =>
+  Array.from(getOffersContainer()).map(getOffer);
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const getPaginationState = () => {
   const paginationSelector = ".pagination__pages";
 
@@ -46,6 +50,7 @@ export const getPaginationState = () => {
 
   const totalPagesRegexp = /z (\d)+/;
   const totalPagesMatches = totalPagesRegexp.exec(
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     paginationWrapper.textContent!
   );
   if (!totalPagesMatches) {
@@ -58,7 +63,7 @@ export const getPaginationState = () => {
   };
 };
 
-export const goToNextPage = () => {
+export const goToNextPage = (): void => {
   const nextPageButton = document.querySelector<HTMLAnchorElement>(
     ".pagination__next"
   );

@@ -10,6 +10,7 @@ export interface AppRequestResponsePair<
   response: AppMessageDescription<R2T, R2D>;
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const createAppRequestResponsePair = <
   R1T extends string,
   R1D,

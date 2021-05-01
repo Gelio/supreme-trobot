@@ -3,7 +3,7 @@ import {
   AppRequestResponder,
   createResponder,
 } from "@app/messaging";
-import { readyMessage } from "@app/messaging/messages";
+import { tabReadyMessage } from "@app/messaging/messages";
 import { getOffersPageMessage, goToNextPageMessage } from "../common/messaging";
 import { changePriceMessage } from "../common/messaging/manage-offer";
 import { changePrice } from "./offer-page";
@@ -32,7 +32,7 @@ chrome.runtime.onConnect.addListener((port) => {
   ];
   const listener = (message: AppMessage) => {
     console.log("Handling message", message);
-    responders.forEach((responder) => responder(message));
+    responders.forEach((responder) => void responder(message));
   };
 
   port.onMessage.addListener(listener);
@@ -41,4 +41,4 @@ chrome.runtime.onConnect.addListener((port) => {
   });
 });
 
-chrome.runtime.sendMessage(readyMessage.create());
+chrome.runtime.sendMessage(tabReadyMessage.create());

@@ -1,3 +1,5 @@
+// SAFETY: the extensionId is checked down below
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 export const extensionId: string = import.meta.env.SNOWPACK_PUBLIC_EXTENSION_ID;
 
 if (!extensionId) {

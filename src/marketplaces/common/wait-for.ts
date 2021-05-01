@@ -8,6 +8,8 @@ export const waitFor = async <Ret>(
   fn: () => Promise<Ret>
 ): Promise<NonNullable<Ret>> => {
   let retriesLeft = 3;
+
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     const result = await fn().catch(
       (error) => (console.error("Error when invoking fn", error), false)

@@ -21,7 +21,7 @@ export function updateTab(
   });
 }
 
-export function closeTab(tabId: number) {
+export function closeTab(tabId: number): Promise<void> {
   return new Promise((resolve) => {
     chrome.tabs.remove(tabId, resolve);
   });
@@ -33,20 +33,21 @@ export function closeTab(tabId: number) {
  * If it returns any other value, the returned Promise is resolved with
  * that value, and the listener is removed.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function listen<F extends (...args: any[]) => any, R>(
   event: chrome.events.Event<F>,
   callback: (...params: Parameters<F>) => R | undefined
-) {
+): Promise<R> {
   return new Promise<R>((resolve) => {
-    const listener = (...args: any[]) => {
-      const result = callback(...(args as any));
+    const listener = (...args: unknown[]) => {
+      const result = callback(...(args as Parameters<F>));
       if (result === undefined) {
         return;
       }
 
-      event.removeListener(listener as any);
+      event.removeListener(listener as F);
       resolve(result);
     };
-    event.addListener(listener as any);
+    event.addListener(listener as F);
   });
 }

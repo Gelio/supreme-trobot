@@ -36,7 +36,7 @@ chrome.runtime.onConnect.addListener((port) => {
       return;
     }
 
-    createResponder(executeWorkflow)(port, async () => {
+    void createResponder(executeWorkflow)(port, async () => {
       updateWorkerState({ status: { type: "working" } });
       const url = "https://allegrolokalnie.pl/konto/oferty/aktywne";
       const offers = await getOffersWorkflow(url);
