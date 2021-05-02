@@ -8,8 +8,16 @@ import {
   goToNextPageMessage,
   tabReadyMessage,
 } from "../common/messaging";
-import { changePriceMessage } from "../common/messaging/manage-offer";
-import { changePrice } from "./commands/offer-page";
+import {
+  changePriceCommand,
+  saveChangesCommand,
+  verifyPriceChangedCommand,
+} from "../common/messaging/manage-offer";
+import {
+  changePrice,
+  saveChanges,
+  verifyPriceChanged,
+} from "./commands/offer-page";
 import {
   getOffers,
   getPaginationState,
@@ -31,10 +39,13 @@ chrome.runtime.onConnect.addListener((port) => {
   const responders = [
     createResponder(getOffersPageMessage)(port, getOffersPage),
     createResponder(goToNextPageMessage)(port, goToNextPage),
-    createResponder(changePriceMessage)(port, changePrice),
+    createResponder(changePriceCommand)(port, changePrice),
+    createResponder(saveChangesCommand)(port, saveChanges),
+    createResponder(verifyPriceChangedCommand)(port, verifyPriceChanged),
   ];
   const listener = (message: AppMessage) => {
     console.log("Handling message", message);
+    // TODO: stop trying other responders when one matches and handles the message
     responders.forEach((responder) => void responder(message));
   };
 

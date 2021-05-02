@@ -1,5 +1,5 @@
 <script lang="typescript">
-  import { connect, reloadExtension, scanAllegro } from "./popup";
+  import { changePrice, connect, reloadExtension, scanAllegro } from "./popup";
   import { onMount } from "svelte";
   import type { WorkerState } from "./worker";
 
@@ -19,8 +19,14 @@
 
   {#if workerState?.offers}
     <ul>
-      {#each workerState.offers as offer}
-        <li>{offer.title} for {offer.price}</li>
+      {#each workerState.offers as offer (offer.url)}
+        <li>
+          <p>{offer.title} for {offer.price}</p>
+          <!-- Unsafe mutation of the offers array. TODO: use local state for the input -->
+
+          <input bind:value={offer.price} />
+          <button on:click={() => changePrice(offer, offer.price)}>Change price</button>
+        </li>
       {/each}
     </ul>
   {/if}

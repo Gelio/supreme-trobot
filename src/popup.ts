@@ -2,6 +2,7 @@ import { listen } from "./chrome-facade";
 import type { Offer } from "./marketplaces/common/messaging";
 import type { AppMessage } from "./messaging";
 import {
+  changePriceCommand,
   getOffersCommand,
   WorkerState,
   workerStateUpdatedMessage,
@@ -55,6 +56,38 @@ export function scanAllegro(): Promise<Offer[]> | undefined {
     return message.data;
   });
   port.postMessage(getOffersCommand.request.create());
+
+  return response;
+}
+
+export function changePrice(
+  offer: Offer,
+  newPrice: string
+): Promise<void> | undefined {
+  const port = chrome.runtime.connect();
+  if (chrome.runtime.lastError) {
+    console.error(
+      "Cannot connect to the service worker",
+      chrome.runtime.lastError
+    );
+    return;
+  }
+
+  const response = listen(port.onMessage, (message: AppMessage) => {
+    if (workerStateUpdatedMessage.is(message)) {
+      console.log("Worker state updated", message.data);
+      return;
+    }
+
+    if (!changePriceCommand.response.is(message)) {
+      return;
+    }
+
+    return message.data;
+  });
+  port.postMessage(
+    changePriceCommand.request.create({ newPrice, offerEditUrl: offer.editUrl })
+  );
 
   return response;
 }
