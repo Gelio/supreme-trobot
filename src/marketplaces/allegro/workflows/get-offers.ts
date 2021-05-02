@@ -3,22 +3,21 @@ import { extensionId } from "@app/consts";
 import {
   getOffersPageMessage,
   goToNextPageMessage,
+  Offer,
   tabReadyMessage,
 } from "@app/marketplaces/common/messaging";
 import { waitFor } from "@app/marketplaces/common/wait-for";
 import type { AppMessage, MessageFromDescription } from "@app/messaging";
 
-export async function getOffersWorkflow(
-  url: string
-): Promise<
-  import("/home/voreny/projects/personal/supreme-trobot/src/marketplaces/common/messaging/offers").Offer[]
-> {
+const offersPageUrl = "https://allegrolokalnie.pl/konto/oferty/aktywne";
+
+export async function getOffersWorkflow(): Promise<Offer[]> {
   const tab = await createTab({ active: false });
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const tabId = tab.id!;
 
   const tabInitiallyReady = waitForTabToBeReady(tabId);
-  await updateTab(tabId, { url });
+  await updateTab(tabId, { url: offersPageUrl });
   await tabInitiallyReady;
 
   const { data: initialPage } = await getOffersPage(tabId);

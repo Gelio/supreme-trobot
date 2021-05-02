@@ -1,10 +1,10 @@
+import { getOffersWorkflow } from "@app/marketplaces/allegro/workflows";
 import { AppMessage, createResponder } from "../messaging";
 import {
   executeWorkflow,
   WorkerState,
   workerStateUpdatedMessage,
 } from "../worker";
-import { getOffersWorkflow } from "./workflows/get-offers";
 
 let workerState: WorkerState = { status: { type: "idle" } };
 /** Ports to notify about worker state updates. I.e. any connected port */
@@ -38,8 +38,7 @@ chrome.runtime.onConnect.addListener((port) => {
 
     void createResponder(executeWorkflow)(port, async () => {
       updateWorkerState({ status: { type: "working" } });
-      const url = "https://allegrolokalnie.pl/konto/oferty/aktywne";
-      const offers = await getOffersWorkflow(url);
+      const offers = await getOffersWorkflow();
 
       updateWorkerState({ status: { type: "idle" }, offers });
       return offers;
