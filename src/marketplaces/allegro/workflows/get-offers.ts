@@ -1,13 +1,12 @@
-import { closeTab, createTab, listen, updateTab } from "@app/chrome-facade";
-import { extensionId } from "@app/consts";
+import { closeTab, createTab, updateTab } from "@app/chrome-facade";
 import {
+  executeCommand,
   getOffersPageMessage,
   goToNextPageMessage,
   Offer,
-  tabReadyMessage,
+  waitForTabToBeReady,
 } from "@app/marketplaces/common/messaging";
 import { waitFor } from "@app/marketplaces/common/wait-for";
-import type { AppMessage, MessageFromDescription } from "@app/messaging";
 
 const offersPageUrl = "https://allegrolokalnie.pl/konto/oferty/aktywne";
 
@@ -20,7 +19,11 @@ export async function getOffersWorkflow(): Promise<Offer[]> {
   await updateTab(tabId, { url: offersPageUrl });
   await tabInitiallyReady;
 
-  const { data: initialPage } = await getOffersPage(tabId);
+  const { data: initialPage } = await executeCommand(
+    tabId,
+    getOffersPageMessage,
+    getOffersPageMessage.request.create()
+  );
   let nextPage = initialPage.currentPage + 1;
   const totalPages = initialPage.totalPages;
   const offers = initialPage.offers;
@@ -32,7 +35,11 @@ export async function getOffersWorkflow(): Promise<Offer[]> {
     await tabReady;
 
     const currentPage = await waitFor(async () => {
-      const page = await getOffersPage(tabId);
+      const page = await executeCommand(
+        tabId,
+        getOffersPageMessage,
+        getOffersPageMessage.request.create()
+      );
       if (nextPage === page.data.currentPage) {
         return page;
       }
@@ -47,48 +54,4 @@ export async function getOffersWorkflow(): Promise<Offer[]> {
   await closeTab(tabId);
 
   return offers;
-}
-
-function waitForTabToBeReady(tabId: number) {
-  return listen(chrome.runtime.onMessage, (message: AppMessage, sender) => {
-    if (sender.tab?.id !== tabId || sender.id !== extensionId) {
-      return;
-    }
-
-    if (!tabReadyMessage.is(message)) {
-      console.error("Unexpected message received", message);
-      return;
-    }
-
-    return true;
-  });
-}
-
-function getOffersPage(tabId: number) {
-  return new Promise<
-    MessageFromDescription<typeof getOffersPageMessage["response"]>
-  >((resolve, reject) => {
-    const port = chrome.tabs.connect(tabId);
-
-    port.onDisconnect.addListener(() => {
-      console.log("Port disconnected");
-      if (chrome.runtime.lastError) {
-        console.log("Chrome runtime error", chrome.runtime.lastError);
-        reject(chrome.runtime.lastError);
-        return;
-      }
-      reject(new Error("Port closed"));
-    });
-    port.onMessage.addListener((message: AppMessage) => {
-      if (!getOffersPageMessage.response.is(message)) {
-        reject(
-          new Error(`Unexpected message received of type: ${message.type}`)
-        );
-        return;
-      }
-
-      resolve(message);
-    });
-    port.postMessage(getOffersPageMessage.request.create());
-  });
 }
