@@ -1,10 +1,7 @@
 import { getOffersWorkflow } from "@app/marketplaces/allegro/workflows";
 import { AppMessage, createResponder } from "../messaging";
-import {
-  executeWorkflow,
-  WorkerState,
-  workerStateUpdatedMessage,
-} from "../worker";
+import { getOffersCommand } from "./commands";
+import { WorkerState, workerStateUpdatedMessage } from "./state";
 
 let workerState: WorkerState = { status: { type: "idle" } };
 /** Ports to notify about worker state updates. I.e. any connected port */
@@ -36,7 +33,7 @@ chrome.runtime.onConnect.addListener((port) => {
       return;
     }
 
-    void createResponder(executeWorkflow)(port, async () => {
+    void createResponder(getOffersCommand)(port, async () => {
       updateWorkerState({ status: { type: "working" } });
       const offers = await getOffersWorkflow();
 

@@ -2,7 +2,7 @@ import { listen } from "./chrome-facade";
 import type { Offer } from "./marketplaces/common/messaging";
 import type { AppMessage } from "./messaging";
 import {
-  executeWorkflow,
+  getOffersCommand,
   WorkerState,
   workerStateUpdatedMessage,
 } from "./worker";
@@ -48,13 +48,13 @@ export function runAllegro(): Promise<Offer[]> | undefined {
       return;
     }
 
-    if (!executeWorkflow.response.is(message)) {
+    if (!getOffersCommand.response.is(message)) {
       return;
     }
 
     return message.data;
   });
-  port.postMessage(executeWorkflow.request.create());
+  port.postMessage(getOffersCommand.request.create());
 
   return response;
 }

@@ -1,8 +1,8 @@
 import type { Offer } from "@app/marketplaces/common/messaging";
 import { createAppRequestResponsePair } from "@app/messaging";
 
-export const executeWorkflow = createAppRequestResponsePair<
-  "EXECUTE_WORKFLOW",
+export const getOffersCommand = createAppRequestResponsePair<
+  "GET_OFFERS",
   void,
   Offer[]
->("EXECUTE_WORKFLOW");
+>("GET_OFFERS");
