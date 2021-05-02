@@ -3,6 +3,15 @@ import { AppMessage, createResponder } from "../messaging";
 import { getOffersCommand } from "./commands";
 import { WorkerState, workerStateUpdatedMessage } from "./state";
 
+chrome.storage.local.get((items) => {
+  if (items.offers) {
+    updateWorkerState({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      offers: items.offers,
+    });
+  }
+});
+
 let workerState: WorkerState = { status: { type: "idle" } };
 /** Ports to notify about worker state updates. I.e. any connected port */
 const portsToNotify: Set<chrome.runtime.Port> = new Set();
@@ -36,6 +45,7 @@ chrome.runtime.onConnect.addListener((port) => {
     void createResponder(getOffersCommand)(port, async () => {
       updateWorkerState({ status: { type: "working" } });
       const offers = await getOffersWorkflow();
+      chrome.storage.local.set({ offers });
 
       updateWorkerState({ status: { type: "idle" }, offers });
       return offers;

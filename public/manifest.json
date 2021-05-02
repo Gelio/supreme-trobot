@@ -7,7 +7,7 @@
     "default_title": "Supreme trobot",
     "default_popup": "index.html"
   },
-  "permissions": ["tabs", "activeTab", "scripting"],
+  "permissions": ["tabs", "activeTab", "scripting", "storage"],
   "host_permissions": ["https://allegrolokalnie.pl/*", "https://olx.pl/*"],
   "background": {
     "service_worker": "service-worker.js"
