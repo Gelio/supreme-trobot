@@ -1,5 +1,5 @@
 <script lang="typescript">
-  import { connect, reloadExtension, runAllegro } from "./popup";
+  import { connect, reloadExtension, scanAllegro } from "./popup";
   import { onMount } from "svelte";
   import type { WorkerState } from "./worker";
 
@@ -14,7 +14,9 @@
 
 <div class="App">
   <button on:click={reloadExtension}>Reload extension</button>
-  <button on:click={runAllegro}>Run Allegro</button>
+  <p>Worker status: {workerState?.status.type}</p>
+  <button on:click={scanAllegro}>Scan Allegro</button>
+
   {#if workerState?.offers}
     <ul>
       {#each workerState.offers as offer}

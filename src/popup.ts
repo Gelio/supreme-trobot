@@ -32,7 +32,7 @@ export function connect(
   });
 }
 
-export function runAllegro(): Promise<Offer[]> | undefined {
+export function scanAllegro(): Promise<Offer[]> | undefined {
   const port = chrome.runtime.connect();
   if (chrome.runtime.lastError) {
     console.error(
