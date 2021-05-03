@@ -1,31 +1,32 @@
 import { tabReadyPageMessage } from "@app/marketplaces/common/messaging";
-import { AppMessage, createResponder } from "@app/messaging";
+import { AppMessage, combineResponders } from "@app/messaging";
 import {
-  changePrice,
   changePricePageCommand,
-  getOffersPage,
   getSingleOffersPagePageCommand,
-  goToNextPage,
   goToNextPagePageCommand,
-  saveChanges,
   saveChangesPageCommand,
-  verifyPriceChanged,
   verifyPriceChangedPageCommand,
 } from "./commands";
 
+const respond = combineResponders(
+  getSingleOffersPagePageCommand.responder,
+  goToNextPagePageCommand.responder,
+  changePricePageCommand.responder,
+  saveChangesPageCommand.responder,
+  verifyPriceChangedPageCommand.responder
+);
+
 chrome.runtime.onConnect.addListener((port) => {
   // TODO: validate port.sender.id (should match the extension ID)
-  const responders = [
-    createResponder(getSingleOffersPagePageCommand)(port, getOffersPage),
-    createResponder(goToNextPagePageCommand)(port, goToNextPage),
-    createResponder(changePricePageCommand)(port, changePrice),
-    createResponder(saveChangesPageCommand)(port, saveChanges),
-    createResponder(verifyPriceChangedPageCommand)(port, verifyPriceChanged),
-  ];
   const listener = (message: AppMessage) => {
     console.log("Handling message", message);
-    // TODO: stop trying other responders when one matches and handles the message
-    responders.forEach((responder) => void responder(message));
+
+    if (!respond(port, message)) {
+      console.error(
+        "Message was not handled by registered responders",
+        message
+      );
+    }
   };
 
   port.onMessage.addListener(listener);

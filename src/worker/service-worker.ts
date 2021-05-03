@@ -1,7 +1,12 @@
-import { getOffersWorkflow } from "@app/marketplaces/allegro/workflows";
-import { changePriceWorkflow } from "@app/marketplaces/allegro/workflows/change-price";
-import { AppMessage, createResponder } from "../messaging";
-import { changePriceDriverCommand, getOffersDriverCommand } from "./driver-commands";
+import {
+  changePriceWorkflow,
+  getOffersWorkflow,
+} from "@app/marketplaces/allegro/workflows";
+import { AppMessage, combineResponders, createResponder } from "../messaging";
+import {
+  changePriceDriverCommand,
+  getOffersDriverCommand,
+} from "./driver-commands";
 import { WorkerState, workerStateUpdatedMessage } from "./state";
 
 chrome.storage.local.get((items) => {
@@ -28,6 +33,26 @@ function updateWorkerState(stateUpdate: Partial<WorkerState>) {
   );
 }
 
+const respond = combineResponders(
+  createResponder(getOffersDriverCommand, async () => {
+    updateWorkerState({ status: { type: "working" } });
+    const offers = await getOffersWorkflow();
+    chrome.storage.local.set({ offers });
+
+    updateWorkerState({ status: { type: "idle" }, offers });
+    return offers;
+  }),
+  createResponder(
+    changePriceDriverCommand,
+    async ({ data: { newPrice, offerEditUrl } }) => {
+      console.log("got change price command");
+      updateWorkerState({ status: { type: "working" } });
+      await changePriceWorkflow({ newPrice, offerEditUrl });
+      updateWorkerState({ status: { type: "idle" } });
+    }
+  )
+);
+
 chrome.runtime.onConnect.addListener((port) => {
   portsToNotify.add(port);
   port.onDisconnect.addListener(() => {
@@ -43,23 +68,11 @@ chrome.runtime.onConnect.addListener((port) => {
       return;
     }
 
-    void createResponder(getOffersDriverCommand)(port, async () => {
-      updateWorkerState({ status: { type: "working" } });
-      const offers = await getOffersWorkflow();
-      chrome.storage.local.set({ offers });
-
-      updateWorkerState({ status: { type: "idle" }, offers });
-      return offers;
-    })(message);
-
-    void createResponder(changePriceDriverCommand)(
-      port,
-      async ({ data: { newPrice, offerEditUrl } }) => {
-        console.log("got change price command");
-        updateWorkerState({ status: { type: "working" } });
-        await changePriceWorkflow({ newPrice, offerEditUrl });
-        updateWorkerState({ status: { type: "idle" } });
-      }
-    )(message);
+    if (!respond(port, message)) {
+      console.error(
+        "Message was not handled by registered responders",
+        message
+      );
+    }
   });
 });

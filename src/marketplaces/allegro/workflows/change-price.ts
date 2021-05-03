@@ -27,24 +27,14 @@ export async function changePriceWorkflow({
   await updateTab(tabId, { url: offerEditUrl });
   await tabInitiallyReady;
 
-  await executeCommand(
-    tabId,
-    changePricePageCommand,
-    changePricePageCommand.request.create({ newPrice })
-  );
+  await executeCommand(tabId, changePricePageCommand.pair, { newPrice });
 
-  await executeCommand(
-    tabId,
-    saveChangesPageCommand,
-    saveChangesPageCommand.request.create()
-  );
+  await executeCommand(tabId, saveChangesPageCommand.pair, undefined);
 
   await waitFor(() =>
-    executeCommand(
-      tabId,
-      verifyPriceChangedPageCommand,
-      verifyPriceChangedPageCommand.request.create({ price: newPrice })
-    )
+    executeCommand(tabId, verifyPriceChangedPageCommand.pair, {
+      price: newPrice,
+    })
   );
 
   await closeTab(tabId);

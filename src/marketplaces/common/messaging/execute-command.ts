@@ -6,11 +6,11 @@ import type {
 
 export function executeCommand<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  P extends AppRequestResponsePair<string, any, string, any>
+  P extends AppRequestResponsePair<string, any, any>
 >(
   tabId: number,
   requestResponsePair: P,
-  request: MessageFromDescription<P["request"]>
+  requestData: MessageFromDescription<P["request"]>["data"]
 ): Promise<MessageFromDescription<P["response"]>> {
   return new Promise((resolve, reject) => {
     const port = chrome.tabs.connect(tabId);
@@ -27,12 +27,7 @@ export function executeCommand<
     port.onMessage.addListener((message: AppMessage) => {
       if (!requestResponsePair.response.is(message)) {
         reject(
-          new Error(
-            `Unexpected message received of type: ${
-              // NOTE: TS assumes there cannot be such a message, problems with generics
-              (message as AppMessage).type
-            }`
-          )
+          new Error(`Unexpected message received of type: ${message.type}`)
         );
         return;
       }
@@ -41,6 +36,6 @@ export function executeCommand<
       resolve(message as MessageFromDescription<P["response"]>);
     });
 
-    port.postMessage(request);
+    port.postMessage(requestResponsePair.request.create(requestData));
   });
 }

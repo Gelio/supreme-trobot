@@ -2,35 +2,30 @@ import type { AppMessage, AppErrorMessage } from "../base";
 import type { AppRequestResponsePair } from "./pair";
 
 /** A handler for the request. Must handle the request */
-export type AppRequestResponder<
+export type AppRequestHandler<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ResponsePair extends AppRequestResponsePair<string, any, string, any>
-> = ResponsePair extends AppRequestResponsePair<
-  infer R1T,
-  infer R1D,
-  string,
-  infer R2D
->
-  ? (message: AppMessage<R1T, R1D>) => R2D | Promise<R2D>
+  ResponsePair extends AppRequestResponsePair<string, any, any>
+> = ResponsePair extends AppRequestResponsePair<string, infer R1D, infer R2D>
+  ? (
+      message: AppMessage<ResponsePair["request"]["type"], R1D>
+    ) => R2D | Promise<R2D>
   : never;
 
-export const createResponder = <
-  R1T extends string,
-  R1D extends unknown,
-  R2T extends string,
-  R2D extends unknown
->(
-  messagePair: AppRequestResponsePair<R1T, R1D, R2T, R2D>
-) => (
+/** @returns null if the message cannot be handled by this responder */
+export type AppRequestResponder = (
   port: chrome.runtime.Port,
-  handler: AppRequestResponder<typeof messagePair>
-  /** @returns nulls if the message cannot be handled */
-) => (message: AppMessage<string, unknown>): null | Promise<void> => {
+  message: AppMessage<string, unknown>
+) => null | Promise<void>;
+
+export const createResponder = <Name extends string, R1D, R2D>(
+  messagePair: AppRequestResponsePair<Name, R1D, R2D>,
+  handler: AppRequestHandler<typeof messagePair>
+): AppRequestResponder => (port, message) => {
   if (!messagePair.request.is(message)) {
     return null;
   }
 
-  // Use `then` to make get the handler return value into a promise
+  // Create an initial promise to promisify the `handler`'s return type
   return Promise.resolve()
     .then(() => handler(message))
     .then((responseData) => {
@@ -44,4 +39,17 @@ export const createResponder = <
       };
       port.postMessage(errorMessage);
     });
+};
+
+export const combineResponders = (
+  ...responders: AppRequestResponder[]
+): AppRequestResponder => (port, message) => {
+  for (const respond of responders) {
+    const respondResult = respond(port, message);
+    if (respondResult) {
+      return respondResult;
+    }
+  }
+
+  return null;
 };
