@@ -13,19 +13,27 @@ import {
   verifyPriceChangedPageCommand,
 } from "./commands";
 
+const responders = [
+  createResponder(getSingleOffersPagePageCommand, getOffersPage),
+  createResponder(goToNextPagePageCommand, goToNextPage),
+  createResponder(changePricePageCommand, changePrice),
+  createResponder(saveChangesPageCommand, saveChanges),
+  createResponder(verifyPriceChangedPageCommand, verifyPriceChanged),
+];
+
 chrome.runtime.onConnect.addListener((port) => {
   // TODO: validate port.sender.id (should match the extension ID)
-  const responders = [
-    createResponder(getSingleOffersPagePageCommand)(port, getOffersPage),
-    createResponder(goToNextPagePageCommand)(port, goToNextPage),
-    createResponder(changePricePageCommand)(port, changePrice),
-    createResponder(saveChangesPageCommand)(port, saveChanges),
-    createResponder(verifyPriceChangedPageCommand)(port, verifyPriceChanged),
-  ];
   const listener = (message: AppMessage) => {
     console.log("Handling message", message);
-    // TODO: stop trying other responders when one matches and handles the message
-    responders.forEach((responder) => void responder(message));
+
+    for (const respond of responders) {
+      const respondResult = respond(port, message);
+      if (respondResult) {
+        return;
+      }
+    }
+
+    console.error("Message was not handled by registered responders", message);
   };
 
   port.onMessage.addListener(listener);
