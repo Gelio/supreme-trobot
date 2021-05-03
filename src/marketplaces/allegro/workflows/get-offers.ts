@@ -1,12 +1,14 @@
 import { closeTab, createTab, updateTab } from "@app/chrome-facade";
 import {
   executeCommand,
-  getSingleOffersPagePageCommand,
-  goToNextPagePageCommand,
   Offer,
   waitForTabToBeReady,
 } from "@app/marketplaces/common/messaging";
 import { waitFor } from "@app/marketplaces/common/wait-for";
+import {
+  getSingleOffersPagePageCommand,
+  goToNextPagePageCommand,
+} from "../page/commands";
 
 const offersPageUrl = "https://allegrolokalnie.pl/konto/oferty/aktywne";
 

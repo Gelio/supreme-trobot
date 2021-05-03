@@ -1,4 +1,30 @@
-import type { Offer } from "../../common/messaging";
+import type { Offer, OffersPage } from "@app/marketplaces/common/messaging";
+import {
+  AppRequestResponder,
+  createAppRequestResponsePair,
+} from "@app/messaging";
+
+/**
+ * NOTE: PagePageCommand suffix is intended. It's a PageCommand that gets the
+ * offers from a single page.
+ */
+export const getSingleOffersPagePageCommand = createAppRequestResponsePair<
+  "PAGE/GET_OFFERS_PAGE",
+  void,
+  OffersPage
+>("PAGE/GET_OFFERS_PAGE");
+
+export const getOffersPage: AppRequestResponder<
+  typeof getSingleOffersPagePageCommand
+> = () => {
+  const { currentPage, totalPages } = getPaginationState();
+
+  return {
+    offers: getOffers(),
+    totalPages,
+    currentPage,
+  };
+};
 
 const getOffer = (offerWrapper: Element): Offer => {
   const titleSelector = "a.offer-card__title";
@@ -63,7 +89,13 @@ export const getPaginationState = () => {
   };
 };
 
-export const goToNextPage = (): void => {
+export const goToNextPagePageCommand = createAppRequestResponsePair<"PAGE/GO_TO_NEXT_PAGE">(
+  "PAGE/GO_TO_NEXT_PAGE"
+);
+
+export const goToNextPage: AppRequestResponder<
+  typeof goToNextPagePageCommand
+> = () => {
   const nextPageButton = document.querySelector<HTMLAnchorElement>(
     ".pagination__next"
   );

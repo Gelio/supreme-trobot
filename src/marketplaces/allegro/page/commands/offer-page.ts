@@ -1,9 +1,12 @@
-import type { AppRequestResponder } from "@app/messaging";
-import type {
-  changePricePageCommand,
-  saveChangesPageCommand,
-  verifyPriceChangedPageCommand,
-} from "../../common/messaging/manage-offer";
+import {
+  createAppRequestResponsePair,
+  AppRequestResponder,
+} from "@app/messaging";
+
+export const changePricePageCommand = createAppRequestResponsePair<
+  "PAGE/CHANGE_PRICE",
+  { newPrice: string }
+>("PAGE/CHANGE_PRICE");
 
 export const changePrice: AppRequestResponder<
   typeof changePricePageCommand
@@ -26,6 +29,10 @@ export const changePrice: AppRequestResponder<
   priceInput.dispatchEvent(new Event("input", { bubbles: true }));
 };
 
+export const saveChangesPageCommand = createAppRequestResponsePair<"PAGE/SAVE_CHANGES">(
+  "PAGE/SAVE_CHANGES"
+);
+
 export const saveChanges: AppRequestResponder<
   typeof saveChangesPageCommand
 > = () => {
@@ -38,6 +45,11 @@ export const saveChanges: AppRequestResponder<
 
   saveChangesButton.click();
 };
+
+export const verifyPriceChangedPageCommand = createAppRequestResponsePair<
+  "PAGE/VERIFY_PRICE_CHANGED",
+  { price: string }
+>("PAGE/VERIFY_PRICE_CHANGED");
 
 export const verifyPriceChanged: AppRequestResponder<
   typeof verifyPriceChangedPageCommand
