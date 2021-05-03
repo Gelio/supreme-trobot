@@ -20,6 +20,10 @@ module.exports = {
         // See https://github.com/sveltejs/eslint-plugin-svelte3/issues/104
         "@typescript-eslint/no-unsafe-member-access": "off",
       },
+      env: {
+        browser: true,
+        webextensions: true,
+      },
     },
   ],
   rules: {},

@@ -3,6 +3,6 @@ import { createAppRequestResponsePair } from "@app/messaging";
 
 export const getOffersDriverCommand = createAppRequestResponsePair<
   "DRIVER/GET_OFFERS",
-  void,
+  { focusNewTab: boolean },
   Offer[]
 >("DRIVER/GET_OFFERS");

@@ -34,9 +34,9 @@ function updateWorkerState(stateUpdate: Partial<WorkerState>) {
 }
 
 const respond = combineResponders(
-  createResponder(getOffersDriverCommand, async () => {
+  createResponder(getOffersDriverCommand, async ({ data: { focusNewTab } }) => {
     updateWorkerState({ status: { type: "working" } });
-    const offers = await getOffersWorkflow();
+    const offers = await getOffersWorkflow(focusNewTab);
     chrome.storage.local.set({ offers });
 
     updateWorkerState({ status: { type: "idle" }, offers });
@@ -44,10 +44,10 @@ const respond = combineResponders(
   }),
   createResponder(
     changePriceDriverCommand,
-    async ({ data: { newPrice, offerEditUrl } }) => {
+    async ({ data: { newPrice, offerEditUrl, focusNewTab } }) => {
       console.log("got change price command");
       updateWorkerState({ status: { type: "working" } });
-      await changePriceWorkflow({ newPrice, offerEditUrl });
+      await changePriceWorkflow({ newPrice, offerEditUrl, focusNewTab });
       updateWorkerState({ status: { type: "idle" } });
     }
   )
