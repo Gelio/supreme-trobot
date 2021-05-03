@@ -4,14 +4,9 @@ import {
 } from "../message-description";
 
 /** A command with a response */
-export interface AppRequestResponsePair<
-  R1T extends string,
-  R1D,
-  R2T extends string,
-  R2D
-> {
-  request: AppMessageDescription<R1T, R1D>;
-  response: AppMessageDescription<R2T, R2D>;
+export interface AppRequestResponsePair<Name extends string, R1D, R2D> {
+  request: AppMessageDescription<`${Name}/REQUEST`, R1D>;
+  response: AppMessageDescription<`${Name}/RESPONSE`, R2D>;
 }
 
 export const createAppRequestResponsePair = <
@@ -20,7 +15,7 @@ export const createAppRequestResponsePair = <
   R2D = void
 >(
   name: Name
-): AppRequestResponsePair<`${Name}/REQUEST`, R1D, `${Name}/RESPONSE`, R2D> => ({
+): AppRequestResponsePair<Name, R1D, R2D> => ({
   request: createMessageDescription<R1D, `${Name}/REQUEST`>(
     `${name}/REQUEST` as const
   ),

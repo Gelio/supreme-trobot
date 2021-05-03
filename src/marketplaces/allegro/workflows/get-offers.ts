@@ -23,8 +23,8 @@ export async function getOffersWorkflow(): Promise<Offer[]> {
 
   const { data: initialPage } = await executeCommand(
     tabId,
-    getSingleOffersPagePageCommand,
-    getSingleOffersPagePageCommand.request.create()
+    getSingleOffersPagePageCommand.pair,
+    undefined
   );
   let nextPage = initialPage.currentPage + 1;
   const totalPages = initialPage.totalPages;
@@ -33,14 +33,14 @@ export async function getOffersWorkflow(): Promise<Offer[]> {
   while (nextPage <= totalPages) {
     const port = chrome.tabs.connect(tabId);
     const tabReady = waitForTabToBeReady(tabId);
-    port.postMessage(goToNextPagePageCommand.request.create());
+    port.postMessage(goToNextPagePageCommand.pair.request.create());
     await tabReady;
 
     const currentPage = await waitFor(async () => {
       const page = await executeCommand(
         tabId,
-        getSingleOffersPagePageCommand,
-        getSingleOffersPagePageCommand.request.create()
+        getSingleOffersPagePageCommand.pair,
+        undefined
       );
       if (nextPage === page.data.currentPage) {
         return page;

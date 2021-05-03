@@ -1,22 +1,18 @@
-import type { Offer, OffersPage } from "@app/marketplaces/common/messaging";
 import {
-  AppRequestHandler,
-  createAppRequestResponsePair,
-} from "@app/messaging";
+  createPageCommandWithHandler,
+  Offer,
+  OffersPage,
+} from "@app/marketplaces/common/messaging";
 
 /**
  * NOTE: PagePageCommand suffix is intended. It's a PageCommand that gets the
  * offers from a single page.
  */
-export const getSingleOffersPagePageCommand = createAppRequestResponsePair<
+export const getSingleOffersPagePageCommand = createPageCommandWithHandler<
   "PAGE/GET_OFFERS_PAGE",
   void,
   OffersPage
->("PAGE/GET_OFFERS_PAGE");
-
-export const getOffersPage: AppRequestHandler<
-  typeof getSingleOffersPagePageCommand
-> = () => {
+>("PAGE/GET_OFFERS_PAGE")(() => {
   const { currentPage, totalPages } = getPaginationState();
 
   return {
@@ -24,7 +20,7 @@ export const getOffersPage: AppRequestHandler<
     totalPages,
     currentPage,
   };
-};
+});
 
 const getOffer = (offerWrapper: Element): Offer => {
   const titleSelector = "a.offer-card__title";
@@ -89,13 +85,9 @@ export const getPaginationState = () => {
   };
 };
 
-export const goToNextPagePageCommand = createAppRequestResponsePair<"PAGE/GO_TO_NEXT_PAGE">(
+export const goToNextPagePageCommand = createPageCommandWithHandler<"PAGE/GO_TO_NEXT_PAGE">(
   "PAGE/GO_TO_NEXT_PAGE"
-);
-
-export const goToNextPage: AppRequestHandler<
-  typeof goToNextPagePageCommand
-> = () => {
+)(() => {
   const nextPageButton = document.querySelector<HTMLAnchorElement>(
     ".pagination__next"
   );
@@ -104,4 +96,4 @@ export const goToNextPage: AppRequestHandler<
   }
 
   return nextPageButton.click();
-};
+});

@@ -1,24 +1,19 @@
 import { tabReadyPageMessage } from "@app/marketplaces/common/messaging";
-import { AppMessage, combineResponders, createResponder } from "@app/messaging";
+import { AppMessage, combineResponders } from "@app/messaging";
 import {
-  changePrice,
   changePricePageCommand,
-  getOffersPage,
   getSingleOffersPagePageCommand,
-  goToNextPage,
   goToNextPagePageCommand,
-  saveChanges,
   saveChangesPageCommand,
-  verifyPriceChanged,
   verifyPriceChangedPageCommand,
 } from "./commands";
 
 const respond = combineResponders(
-  createResponder(getSingleOffersPagePageCommand, getOffersPage),
-  createResponder(goToNextPagePageCommand, goToNextPage),
-  createResponder(changePricePageCommand, changePrice),
-  createResponder(saveChangesPageCommand, saveChanges),
-  createResponder(verifyPriceChangedPageCommand, verifyPriceChanged)
+  getSingleOffersPagePageCommand.responder,
+  goToNextPagePageCommand.responder,
+  changePricePageCommand.responder,
+  saveChangesPageCommand.responder,
+  verifyPriceChangedPageCommand.responder
 );
 
 chrome.runtime.onConnect.addListener((port) => {

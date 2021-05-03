@@ -1,16 +1,9 @@
-import {
-  createAppRequestResponsePair,
-  AppRequestHandler,
-} from "@app/messaging";
+import { createPageCommandWithHandler } from "@app/marketplaces/common/messaging";
 
-export const changePricePageCommand = createAppRequestResponsePair<
+export const changePricePageCommand = createPageCommandWithHandler<
   "PAGE/CHANGE_PRICE",
   { newPrice: string }
->("PAGE/CHANGE_PRICE");
-
-export const changePrice: AppRequestHandler<typeof changePricePageCommand> = ({
-  data: { newPrice },
-}) => {
+>("PAGE/CHANGE_PRICE")(({ data: { newPrice } }) => {
   const priceSelector = 'input#cena[name="price"]';
   const priceInput = document.querySelector<HTMLInputElement>(priceSelector);
   if (!priceInput) {
@@ -27,15 +20,11 @@ export const changePrice: AppRequestHandler<typeof changePricePageCommand> = ({
   nativeInputValueSetter!.call(priceInput, newPrice);
 
   priceInput.dispatchEvent(new Event("input", { bubbles: true }));
-};
+});
 
-export const saveChangesPageCommand = createAppRequestResponsePair<"PAGE/SAVE_CHANGES">(
+export const saveChangesPageCommand = createPageCommandWithHandler<"PAGE/SAVE_CHANGES">(
   "PAGE/SAVE_CHANGES"
-);
-
-export const saveChanges: AppRequestHandler<
-  typeof saveChangesPageCommand
-> = () => {
+)(() => {
   const saveChangesButton = document.querySelector<HTMLElement>(
     'button[data-testid="offer-submit-button"]'
   );
@@ -44,16 +33,12 @@ export const saveChanges: AppRequestHandler<
   }
 
   saveChangesButton.click();
-};
+});
 
-export const verifyPriceChangedPageCommand = createAppRequestResponsePair<
+export const verifyPriceChangedPageCommand = createPageCommandWithHandler<
   "PAGE/VERIFY_PRICE_CHANGED",
   { price: string }
->("PAGE/VERIFY_PRICE_CHANGED");
-
-export const verifyPriceChanged: AppRequestHandler<
-  typeof verifyPriceChangedPageCommand
-> = ({ data: { price } }) => {
+>("PAGE/VERIFY_PRICE_CHANGED")(({ data: { price } }) => {
   const offerPrice = document.querySelector('[data-testid="offer-price"]');
   if (!offerPrice) {
     throw new Error("Cannot find the offer's price");
@@ -62,4 +47,4 @@ export const verifyPriceChanged: AppRequestHandler<
   if (!offerPrice.textContent?.includes(price)) {
     throw new Error("Offer's price does not match");
   }
-};
+});
