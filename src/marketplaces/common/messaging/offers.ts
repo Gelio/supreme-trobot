@@ -14,12 +14,16 @@ export interface OffersPage {
   totalPages: number;
 }
 
-export const getOffersPageMessage = createAppRequestResponsePair<
-  "GET_OFFERS_PAGE",
+/**
+ * NOTE: PagePageCommand suffix is intended. It's a PageCommand that gets the
+ * offers from a single page.
+ */
+export const getSingleOffersPagePageCommand = createAppRequestResponsePair<
+  "PAGE/GET_OFFERS_PAGE",
   void,
   OffersPage
->("GET_OFFERS_PAGE");
+>("PAGE/GET_OFFERS_PAGE");
 
-export const goToNextPageMessage = createAppRequestResponsePair<"GO_TO_NEXT_PAGE">(
-  "GO_TO_NEXT_PAGE"
+export const goToNextPagePageCommand = createAppRequestResponsePair<"PAGE/GO_TO_NEXT_PAGE">(
+  "PAGE/GO_TO_NEXT_PAGE"
 );

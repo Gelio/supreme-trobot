@@ -1,8 +1,8 @@
 import { closeTab, createTab, updateTab } from "@app/chrome-facade";
 import {
   executeCommand,
-  getOffersPageMessage,
-  goToNextPageMessage,
+  getSingleOffersPagePageCommand,
+  goToNextPagePageCommand,
   Offer,
   waitForTabToBeReady,
 } from "@app/marketplaces/common/messaging";
@@ -21,8 +21,8 @@ export async function getOffersWorkflow(): Promise<Offer[]> {
 
   const { data: initialPage } = await executeCommand(
     tabId,
-    getOffersPageMessage,
-    getOffersPageMessage.request.create()
+    getSingleOffersPagePageCommand,
+    getSingleOffersPagePageCommand.request.create()
   );
   let nextPage = initialPage.currentPage + 1;
   const totalPages = initialPage.totalPages;
@@ -31,14 +31,14 @@ export async function getOffersWorkflow(): Promise<Offer[]> {
   while (nextPage <= totalPages) {
     const port = chrome.tabs.connect(tabId);
     const tabReady = waitForTabToBeReady(tabId);
-    port.postMessage(goToNextPageMessage.request.create());
+    port.postMessage(goToNextPagePageCommand.request.create());
     await tabReady;
 
     const currentPage = await waitFor(async () => {
       const page = await executeCommand(
         tabId,
-        getOffersPageMessage,
-        getOffersPageMessage.request.create()
+        getSingleOffersPagePageCommand,
+        getSingleOffersPagePageCommand.request.create()
       );
       if (nextPage === page.data.currentPage) {
         return page;

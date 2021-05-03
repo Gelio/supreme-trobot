@@ -2,8 +2,8 @@ import { listen } from "./chrome-facade";
 import type { Offer } from "./marketplaces/common/messaging";
 import type { AppMessage } from "./messaging";
 import {
-  changePriceCommand,
-  getOffersCommand,
+  changePriceDriverCommand,
+  getOffersDriverCommand,
   WorkerState,
   workerStateUpdatedMessage,
 } from "./worker";
@@ -49,13 +49,13 @@ export function scanAllegro(): Promise<Offer[]> | undefined {
       return;
     }
 
-    if (!getOffersCommand.response.is(message)) {
+    if (!getOffersDriverCommand.response.is(message)) {
       return;
     }
 
     return message.data;
   });
-  port.postMessage(getOffersCommand.request.create());
+  port.postMessage(getOffersDriverCommand.request.create());
 
   return response;
 }
@@ -79,14 +79,17 @@ export function changePrice(
       return;
     }
 
-    if (!changePriceCommand.response.is(message)) {
+    if (!changePriceDriverCommand.response.is(message)) {
       return;
     }
 
     return message.data;
   });
   port.postMessage(
-    changePriceCommand.request.create({ newPrice, offerEditUrl: offer.editUrl })
+    changePriceDriverCommand.request.create({
+      newPrice,
+      offerEditUrl: offer.editUrl,
+    })
   );
 
   return response;

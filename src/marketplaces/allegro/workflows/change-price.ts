@@ -1,9 +1,9 @@
 import { closeTab, createTab, updateTab } from "@app/chrome-facade";
 import {
-  changePriceCommand,
+  changePricePageCommand,
   executeCommand,
-  saveChangesCommand,
-  verifyPriceChangedCommand,
+  saveChangesPageCommand,
+  verifyPriceChangedPageCommand,
   waitForTabToBeReady,
 } from "@app/marketplaces/common/messaging";
 import { waitFor } from "@app/marketplaces/common/wait-for";
@@ -27,21 +27,21 @@ export async function changePriceWorkflow({
 
   await executeCommand(
     tabId,
-    changePriceCommand,
-    changePriceCommand.request.create({ newPrice })
+    changePricePageCommand,
+    changePricePageCommand.request.create({ newPrice })
   );
 
   await executeCommand(
     tabId,
-    saveChangesCommand,
-    saveChangesCommand.request.create()
+    saveChangesPageCommand,
+    saveChangesPageCommand.request.create()
   );
 
   await waitFor(() =>
     executeCommand(
       tabId,
-      verifyPriceChangedCommand,
-      verifyPriceChangedCommand.request.create({ price: newPrice })
+      verifyPriceChangedPageCommand,
+      verifyPriceChangedPageCommand.request.create({ price: newPrice })
     )
   );
 

@@ -1,15 +1,15 @@
 import { createAppRequestResponsePair } from "@app/messaging";
 
-export const changePriceCommand = createAppRequestResponsePair<
-  "CHANGE_PRICE",
+export const changePricePageCommand = createAppRequestResponsePair<
+  "PAGE/CHANGE_PRICE",
   { newPrice: string }
->("CHANGE_PRICE");
+>("PAGE/CHANGE_PRICE");
 
-export const saveChangesCommand = createAppRequestResponsePair<"SAVE_CHANGES">(
-  "SAVE_CHANGES"
+export const saveChangesPageCommand = createAppRequestResponsePair<"PAGE/SAVE_CHANGES">(
+  "PAGE/SAVE_CHANGES"
 );
 
-export const verifyPriceChangedCommand = createAppRequestResponsePair<
-  "VERIFY_PRICE_CHANGED",
+export const verifyPriceChangedPageCommand = createAppRequestResponsePair<
+  "PAGE/VERIFY_PRICE_CHANGED",
   { price: string }
->("VERIFY_PRICE_CHANGED");
+>("PAGE/VERIFY_PRICE_CHANGED");
