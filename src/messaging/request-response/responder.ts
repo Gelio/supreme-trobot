@@ -14,6 +14,12 @@ export type AppRequestHandler<
   ? (message: AppMessage<R1T, R1D>) => R2D | Promise<R2D>
   : never;
 
+/** @returns null if the message cannot be handled by this responder */
+export type AppRequestResponder = (
+  port: chrome.runtime.Port,
+  message: AppMessage<string, unknown>
+) => null | Promise<void>;
+
 export const createResponder = <
   R1T extends string,
   R1D,
@@ -22,11 +28,7 @@ export const createResponder = <
 >(
   messagePair: AppRequestResponsePair<R1T, R1D, R2T, R2D>,
   handler: AppRequestHandler<typeof messagePair>
-  /** @returns nulls if the message cannot be handled */
-) => (
-  port: chrome.runtime.Port,
-  message: AppMessage<string, unknown>
-): null | Promise<void> => {
+): AppRequestResponder => (port, message) => {
   if (!messagePair.request.is(message)) {
     return null;
   }
@@ -45,4 +47,17 @@ export const createResponder = <
       };
       port.postMessage(errorMessage);
     });
+};
+
+export const combineResponders = (
+  ...responders: AppRequestResponder[]
+): AppRequestResponder => (port, message) => {
+  for (const respond of responders) {
+    const respondResult = respond(port, message);
+    if (respondResult) {
+      return respondResult;
+    }
+  }
+
+  return null;
 };

@@ -1,6 +1,8 @@
-import { getOffersWorkflow } from "@app/marketplaces/allegro/workflows";
-import { changePriceWorkflow } from "@app/marketplaces/allegro/workflows/change-price";
-import { AppMessage, createResponder } from "../messaging";
+import {
+  changePriceWorkflow,
+  getOffersWorkflow,
+} from "@app/marketplaces/allegro/workflows";
+import { AppMessage, combineResponders, createResponder } from "../messaging";
 import {
   changePriceDriverCommand,
   getOffersDriverCommand,
@@ -31,6 +33,26 @@ function updateWorkerState(stateUpdate: Partial<WorkerState>) {
   );
 }
 
+const respond = combineResponders(
+  createResponder(getOffersDriverCommand, async () => {
+    updateWorkerState({ status: { type: "working" } });
+    const offers = await getOffersWorkflow();
+    chrome.storage.local.set({ offers });
+
+    updateWorkerState({ status: { type: "idle" }, offers });
+    return offers;
+  }),
+  createResponder(
+    changePriceDriverCommand,
+    async ({ data: { newPrice, offerEditUrl } }) => {
+      console.log("got change price command");
+      updateWorkerState({ status: { type: "working" } });
+      await changePriceWorkflow({ newPrice, offerEditUrl });
+      updateWorkerState({ status: { type: "idle" } });
+    }
+  )
+);
+
 chrome.runtime.onConnect.addListener((port) => {
   portsToNotify.add(port);
   port.onDisconnect.addListener(() => {
@@ -40,39 +62,17 @@ chrome.runtime.onConnect.addListener((port) => {
   // Initial state update
   port.postMessage(workerStateUpdatedMessage.create(workerState));
 
-  const responders = [
-    createResponder(getOffersDriverCommand, async () => {
-      updateWorkerState({ status: { type: "working" } });
-      const offers = await getOffersWorkflow();
-      chrome.storage.local.set({ offers });
-
-      updateWorkerState({ status: { type: "idle" }, offers });
-      return offers;
-    }),
-    createResponder(
-      changePriceDriverCommand,
-      async ({ data: { newPrice, offerEditUrl } }) => {
-        console.log("got change price command");
-        updateWorkerState({ status: { type: "working" } });
-        await changePriceWorkflow({ newPrice, offerEditUrl });
-        updateWorkerState({ status: { type: "idle" } });
-      }
-    ),
-  ];
-
   port.onMessage.addListener((message: AppMessage) => {
     if (workerState.status.type === "working") {
       console.error("Received message", message, "when worker was working");
       return;
     }
 
-    for (const respond of responders) {
-      const respondResult = respond(port, message);
-      if (respondResult) {
-        return;
-      }
+    if (!respond(port, message)) {
+      console.error(
+        "Message was not handled by registered responders",
+        message
+      );
     }
-
-    console.error("Message was not handled by registered responders", message);
   });
 });
