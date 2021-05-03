@@ -9,7 +9,6 @@ const projectRoot = path.resolve(__dirname);
 
 const inputFiles = {
   "marketplaces/allegro": "src/marketplaces/allegro/content-script.ts",
-  "marketplaces/olx": "src/marketplaces/olx/content-script.ts",
   "service-worker": "src/worker/service-worker.ts",
 };
 
