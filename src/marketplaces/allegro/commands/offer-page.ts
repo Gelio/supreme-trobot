@@ -1,13 +1,13 @@
 import type { AppRequestResponder } from "@app/messaging";
 import type {
-  changePriceCommand,
-  saveChangesCommand,
-  verifyPriceChangedCommand,
+  changePricePageCommand,
+  saveChangesPageCommand,
+  verifyPriceChangedPageCommand,
 } from "../../common/messaging/manage-offer";
 
-export const changePrice: AppRequestResponder<typeof changePriceCommand> = ({
-  data: { newPrice },
-}) => {
+export const changePrice: AppRequestResponder<
+  typeof changePricePageCommand
+> = ({ data: { newPrice } }) => {
   const priceSelector = 'input#cena[name="price"]';
   const priceInput = document.querySelector<HTMLInputElement>(priceSelector);
   if (!priceInput) {
@@ -27,7 +27,7 @@ export const changePrice: AppRequestResponder<typeof changePriceCommand> = ({
 };
 
 export const saveChanges: AppRequestResponder<
-  typeof saveChangesCommand
+  typeof saveChangesPageCommand
 > = () => {
   const saveChangesButton = document.querySelector<HTMLElement>(
     'button[data-testid="offer-submit-button"]'
@@ -40,7 +40,7 @@ export const saveChanges: AppRequestResponder<
 };
 
 export const verifyPriceChanged: AppRequestResponder<
-  typeof verifyPriceChangedCommand
+  typeof verifyPriceChangedPageCommand
 > = ({ data: { price } }) => {
   const offerPrice = document.querySelector('[data-testid="offer-price"]');
   if (!offerPrice) {

@@ -4,14 +4,14 @@ import {
   createResponder,
 } from "@app/messaging";
 import {
-  getOffersPageMessage,
-  goToNextPageMessage,
+  getSingleOffersPagePageCommand,
+  goToNextPagePageCommand,
   tabReadyMessage,
 } from "../common/messaging";
 import {
-  changePriceCommand,
-  saveChangesCommand,
-  verifyPriceChangedCommand,
+  changePricePageCommand,
+  saveChangesPageCommand,
+  verifyPriceChangedPageCommand,
 } from "../common/messaging/manage-offer";
 import {
   changePrice,
@@ -24,7 +24,7 @@ import {
   goToNextPage,
 } from "./commands/offers-list-page";
 
-const getOffersPage: AppRequestResponder<typeof getOffersPageMessage> = () => {
+const getOffersPage: AppRequestResponder<typeof getSingleOffersPagePageCommand> = () => {
   const { currentPage, totalPages } = getPaginationState();
 
   return {
@@ -37,11 +37,11 @@ const getOffersPage: AppRequestResponder<typeof getOffersPageMessage> = () => {
 chrome.runtime.onConnect.addListener((port) => {
   // TODO: validate port.sender.id (should match the extension ID)
   const responders = [
-    createResponder(getOffersPageMessage)(port, getOffersPage),
-    createResponder(goToNextPageMessage)(port, goToNextPage),
-    createResponder(changePriceCommand)(port, changePrice),
-    createResponder(saveChangesCommand)(port, saveChanges),
-    createResponder(verifyPriceChangedCommand)(port, verifyPriceChanged),
+    createResponder(getSingleOffersPagePageCommand)(port, getOffersPage),
+    createResponder(goToNextPagePageCommand)(port, goToNextPage),
+    createResponder(changePricePageCommand)(port, changePrice),
+    createResponder(saveChangesPageCommand)(port, saveChanges),
+    createResponder(verifyPriceChangedPageCommand)(port, verifyPriceChanged),
   ];
   const listener = (message: AppMessage) => {
     console.log("Handling message", message);
