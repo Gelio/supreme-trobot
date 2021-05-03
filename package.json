@@ -8,6 +8,7 @@
     "build:content-scripts:watch": "rollup -c --watch",
     "test": "web-test-runner \"src/**/*.test.ts\"",
     "check-types": "tsc --noEmit",
+    "check-types:watch": "npm run check-types -- --watch",
     "lint": "eslint src"
   },
   "dependencies": {
