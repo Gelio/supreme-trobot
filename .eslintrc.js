@@ -15,6 +15,11 @@ module.exports = {
     {
       files: ["*.svelte"],
       processor: "svelte3/svelte3",
+      rules: {
+        // NOTE: there are false positives/negatives in Svelte files for type-aware rules
+        // See https://github.com/sveltejs/eslint-plugin-svelte3/issues/104
+        "@typescript-eslint/no-unsafe-member-access": "off",
+      },
     },
   ],
   rules: {},
