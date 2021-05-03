@@ -1,38 +1,17 @@
-import {
-  AppMessage,
-  AppRequestResponder,
-  createResponder,
-} from "@app/messaging";
-import {
-  getSingleOffersPagePageCommand,
-  goToNextPagePageCommand,
-  tabReadyMessage,
-} from "../common/messaging";
-import {
-  changePricePageCommand,
-  saveChangesPageCommand,
-  verifyPriceChangedPageCommand,
-} from "../common/messaging/manage-offer";
+import { tabReadyPageMessage } from "@app/marketplaces/common/messaging";
+import { AppMessage, createResponder } from "@app/messaging";
 import {
   changePrice,
-  saveChanges,
-  verifyPriceChanged,
-} from "./commands/offer-page";
-import {
-  getOffers,
-  getPaginationState,
+  changePricePageCommand,
+  getOffersPage,
+  getSingleOffersPagePageCommand,
   goToNextPage,
-} from "./commands/offers-list-page";
-
-const getOffersPage: AppRequestResponder<typeof getSingleOffersPagePageCommand> = () => {
-  const { currentPage, totalPages } = getPaginationState();
-
-  return {
-    offers: getOffers(),
-    totalPages,
-    currentPage,
-  };
-};
+  goToNextPagePageCommand,
+  saveChanges,
+  saveChangesPageCommand,
+  verifyPriceChanged,
+  verifyPriceChangedPageCommand,
+} from "./commands";
 
 chrome.runtime.onConnect.addListener((port) => {
   // TODO: validate port.sender.id (should match the extension ID)
@@ -55,4 +34,4 @@ chrome.runtime.onConnect.addListener((port) => {
   });
 });
 
-chrome.runtime.sendMessage(tabReadyMessage.create());
+chrome.runtime.sendMessage(tabReadyPageMessage.create());

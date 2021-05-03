@@ -1,12 +1,14 @@
 import { closeTab, createTab, updateTab } from "@app/chrome-facade";
 import {
-  changePricePageCommand,
   executeCommand,
-  saveChangesPageCommand,
-  verifyPriceChangedPageCommand,
   waitForTabToBeReady,
 } from "@app/marketplaces/common/messaging";
 import { waitFor } from "@app/marketplaces/common/wait-for";
+import {
+  changePricePageCommand,
+  saveChangesPageCommand,
+  verifyPriceChangedPageCommand,
+} from "../page/commands";
 
 export interface ChangePriceWorkflowParams {
   offerEditUrl: string;
