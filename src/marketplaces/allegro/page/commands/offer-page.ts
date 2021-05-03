@@ -1,6 +1,6 @@
 import {
   createAppRequestResponsePair,
-  AppRequestResponder,
+  AppRequestHandler,
 } from "@app/messaging";
 
 export const changePricePageCommand = createAppRequestResponsePair<
@@ -8,9 +8,9 @@ export const changePricePageCommand = createAppRequestResponsePair<
   { newPrice: string }
 >("PAGE/CHANGE_PRICE");
 
-export const changePrice: AppRequestResponder<
-  typeof changePricePageCommand
-> = ({ data: { newPrice } }) => {
+export const changePrice: AppRequestHandler<typeof changePricePageCommand> = ({
+  data: { newPrice },
+}) => {
   const priceSelector = 'input#cena[name="price"]';
   const priceInput = document.querySelector<HTMLInputElement>(priceSelector);
   if (!priceInput) {
@@ -33,7 +33,7 @@ export const saveChangesPageCommand = createAppRequestResponsePair<"PAGE/SAVE_CH
   "PAGE/SAVE_CHANGES"
 );
 
-export const saveChanges: AppRequestResponder<
+export const saveChanges: AppRequestHandler<
   typeof saveChangesPageCommand
 > = () => {
   const saveChangesButton = document.querySelector<HTMLElement>(
@@ -51,7 +51,7 @@ export const verifyPriceChangedPageCommand = createAppRequestResponsePair<
   { price: string }
 >("PAGE/VERIFY_PRICE_CHANGED");
 
-export const verifyPriceChanged: AppRequestResponder<
+export const verifyPriceChanged: AppRequestHandler<
   typeof verifyPriceChangedPageCommand
 > = ({ data: { price } }) => {
   const offerPrice = document.querySelector('[data-testid="offer-price"]');

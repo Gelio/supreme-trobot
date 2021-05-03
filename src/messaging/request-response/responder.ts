@@ -2,7 +2,7 @@ import type { AppMessage, AppErrorMessage } from "../base";
 import type { AppRequestResponsePair } from "./pair";
 
 /** A handler for the request. Must handle the request */
-export type AppRequestResponder<
+export type AppRequestHandler<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ResponsePair extends AppRequestResponsePair<string, any, string, any>
 > = ResponsePair extends AppRequestResponsePair<
@@ -21,7 +21,7 @@ export const createResponder = <
   R2D
 >(
   messagePair: AppRequestResponsePair<R1T, R1D, R2T, R2D>,
-  handler: AppRequestResponder<typeof messagePair>
+  handler: AppRequestHandler<typeof messagePair>
   /** @returns nulls if the message cannot be handled */
 ) => (
   port: chrome.runtime.Port,

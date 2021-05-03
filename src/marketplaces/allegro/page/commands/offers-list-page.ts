@@ -1,6 +1,6 @@
 import type { Offer, OffersPage } from "@app/marketplaces/common/messaging";
 import {
-  AppRequestResponder,
+  AppRequestHandler,
   createAppRequestResponsePair,
 } from "@app/messaging";
 
@@ -14,7 +14,7 @@ export const getSingleOffersPagePageCommand = createAppRequestResponsePair<
   OffersPage
 >("PAGE/GET_OFFERS_PAGE");
 
-export const getOffersPage: AppRequestResponder<
+export const getOffersPage: AppRequestHandler<
   typeof getSingleOffersPagePageCommand
 > = () => {
   const { currentPage, totalPages } = getPaginationState();
@@ -93,7 +93,7 @@ export const goToNextPagePageCommand = createAppRequestResponsePair<"PAGE/GO_TO_
   "PAGE/GO_TO_NEXT_PAGE"
 );
 
-export const goToNextPage: AppRequestResponder<
+export const goToNextPage: AppRequestHandler<
   typeof goToNextPagePageCommand
 > = () => {
   const nextPageButton = document.querySelector<HTMLAnchorElement>(
