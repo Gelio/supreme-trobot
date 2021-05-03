@@ -33,7 +33,9 @@ export function connect(
   });
 }
 
-export function scanAllegro(): Promise<Offer[]> | undefined {
+export function scanAllegro(
+  focusNewTab: boolean
+): Promise<Offer[]> | undefined {
   const port = chrome.runtime.connect();
   if (chrome.runtime.lastError) {
     console.error(
@@ -55,14 +57,15 @@ export function scanAllegro(): Promise<Offer[]> | undefined {
 
     return message.data;
   });
-  port.postMessage(getOffersDriverCommand.request.create());
+  port.postMessage(getOffersDriverCommand.request.create({ focusNewTab }));
 
   return response;
 }
 
 export function changePrice(
   offer: Offer,
-  newPrice: string
+  newPrice: string,
+  focusNewTab: boolean
 ): Promise<void> | undefined {
   const port = chrome.runtime.connect();
   if (chrome.runtime.lastError) {
@@ -89,6 +92,7 @@ export function changePrice(
     changePriceDriverCommand.request.create({
       newPrice,
       offerEditUrl: offer.editUrl,
+      focusNewTab,
     })
   );
 

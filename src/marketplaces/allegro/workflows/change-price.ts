@@ -13,13 +13,15 @@ import {
 export interface ChangePriceWorkflowParams {
   offerEditUrl: string;
   newPrice: string;
+  focusNewTab: boolean;
 }
 
 export async function changePriceWorkflow({
   newPrice,
   offerEditUrl,
+  focusNewTab,
 }: ChangePriceWorkflowParams): Promise<void> {
-  const tab = await createTab({ active: false });
+  const tab = await createTab({ active: focusNewTab });
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const tabId = tab.id!;
 

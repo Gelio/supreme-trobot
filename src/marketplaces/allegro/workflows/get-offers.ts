@@ -12,8 +12,10 @@ import {
 
 const offersPageUrl = "https://allegrolokalnie.pl/konto/oferty/aktywne";
 
-export async function getOffersWorkflow(): Promise<Offer[]> {
-  const tab = await createTab({ active: false });
+export async function getOffersWorkflow(
+  focusNewTab: boolean
+): Promise<Offer[]> {
+  const tab = await createTab({ active: focusNewTab });
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const tabId = tab.id!;
 

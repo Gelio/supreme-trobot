@@ -24,7 +24,7 @@
     </div>
   {/if}
   <p>Worker status: {workerState?.status.type}</p>
-  <button on:click={scanAllegro}>Scan Allegro</button>
+  <button on:click={() => scanAllegro(isExtensionPage)}>Scan Allegro</button>
 
   {#if workerState?.offers}
     <ul>
@@ -34,7 +34,7 @@
           <!-- Unsafe mutation of the offers array. TODO: use local state for the input -->
 
           <input bind:value={offer.price} />
-          <button on:click={() => changePrice(offer, offer.price)}
+          <button on:click={() => changePrice(offer, offer.price, isExtensionPage)}
             >Change price</button
           >
         </li>
