@@ -8,6 +8,8 @@ jobs:
       matrix:
         node: ["12", "14", "16"]
     name: node ${{ matrix.node }}
+    env:
+      SNOWPACK_PUBLIC_EXTENSION_ID: "1234abcd"
     steps:
       - uses: actions/checkout@v2
       - name: Setup node
