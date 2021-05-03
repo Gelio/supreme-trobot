@@ -8,7 +8,7 @@ import dotenv from "dotenv";
 const projectRoot = path.resolve(__dirname);
 
 const inputFiles = {
-  "marketplaces/allegro": "src/marketplaces/allegro/content-script.ts",
+  "marketplaces/allegro": "src/marketplaces/allegro/page/content-script.ts",
   "service-worker": "src/worker/service-worker.ts",
 };
 
