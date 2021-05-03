@@ -1,7 +1,7 @@
 import { getOffersWorkflow } from "@app/marketplaces/allegro/workflows";
 import { changePriceWorkflow } from "@app/marketplaces/allegro/workflows/change-price";
 import { AppMessage, createResponder } from "../messaging";
-import { changePriceCommand, getOffersCommand } from "./commands";
+import { changePriceDriverCommand, getOffersDriverCommand } from "./driver-commands";
 import { WorkerState, workerStateUpdatedMessage } from "./state";
 
 chrome.storage.local.get((items) => {
@@ -43,7 +43,7 @@ chrome.runtime.onConnect.addListener((port) => {
       return;
     }
 
-    void createResponder(getOffersCommand)(port, async () => {
+    void createResponder(getOffersDriverCommand)(port, async () => {
       updateWorkerState({ status: { type: "working" } });
       const offers = await getOffersWorkflow();
       chrome.storage.local.set({ offers });
@@ -52,7 +52,7 @@ chrome.runtime.onConnect.addListener((port) => {
       return offers;
     })(message);
 
-    void createResponder(changePriceCommand)(
+    void createResponder(changePriceDriverCommand)(
       port,
       async ({ data: { newPrice, offerEditUrl } }) => {
         console.log("got change price command");
