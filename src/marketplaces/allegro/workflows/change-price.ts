@@ -33,10 +33,12 @@ export async function changePriceWorkflow({
 
   await executeCommand(tabId, saveChangesPageCommand.pair, undefined);
 
-  await waitFor(() =>
-    executeCommand(tabId, verifyPriceChangedPageCommand.pair, {
-      price: newPrice,
-    })
+  await waitFor(
+    () =>
+      executeCommand(tabId, verifyPriceChangedPageCommand.pair, {
+        price: newPrice,
+      }),
+    { retriesCount: 10 }
   );
 
   await closeTab(tabId);

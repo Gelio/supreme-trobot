@@ -1,3 +1,11 @@
+interface WaitForOptions {
+  retriesCount?: number;
+  delay?: number;
+}
+
+const DEFAULT_RETRIES_COUNT = 3;
+const DEFAULT_DELAY = 1000;
+
 /**
  * Runs the function until it succeeds, with timeouts in between, until a
  * specific retries number is achieved.
@@ -5,9 +13,13 @@
  * The fn assumes to have succeeded if it returns a truthy value.
  */
 export const waitFor = async <Ret>(
-  fn: () => Promise<Ret>
+  fn: () => Promise<Ret>,
+  {
+    delay = DEFAULT_DELAY,
+    retriesCount = DEFAULT_RETRIES_COUNT,
+  }: WaitForOptions = {}
 ): Promise<NonNullable<Ret>> => {
-  let retriesLeft = 3;
+  let retriesLeft = retriesCount;
 
   const intermediateResults: unknown[] = [];
 
@@ -30,7 +42,7 @@ export const waitFor = async <Ret>(
     console.log(
       `Operation failed. Retrying in 1s. Retries left: ${retriesLeft}`
     );
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, delay));
   }
 
   console.error("Operation failed. Intermediate results:", intermediateResults);
