@@ -9,7 +9,10 @@
     "test": "web-test-runner \"src/**/*.test.ts\"",
     "check-types": "tsc --noEmit",
     "check-types:watch": "npm run check-types -- --watch",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "format:base": "prettier src './*.js' package.json tsconfig.json",
+    "format:check": "npm run format:base -- --check",
+    "format": "npm run format:base -- --write"
   },
   "dependencies": {
     "redux": "^4.1.0",
@@ -39,6 +42,7 @@
     "dotenv": "^8.2.0",
     "eslint": "^7.25.0",
     "eslint-plugin-svelte3": "^3.2.0",
+    "prettier": "^2.2.1",
     "rollup": "^2.44.0",
     "snowpack": "^3.0.1",
     "svelte-preprocess": "^4.0.8",
