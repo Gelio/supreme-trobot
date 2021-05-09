@@ -1,4 +1,4 @@
-import { Action, createStore as createReduxStore, Reducer } from "redux";
+import { Action, createStore as createReduxStore, Reducer, Store } from "redux";
 
 import type { Offer } from "@app/marketplaces/common/messaging";
 import { createMessageDescription } from "@app/messaging";
@@ -36,6 +36,6 @@ const stateReducer: Reducer<WorkerState, StateUpdateAction> = (
   }
 };
 
-// NOTE: the type is lengthy and quite long
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export const createStore = () => createReduxStore(stateReducer);
+export type WorkerStore = Store<WorkerState, StateUpdateAction>;
+export const createWorkerStore = (): WorkerStore =>
+  createReduxStore(stateReducer);

@@ -1,15 +1,15 @@
+import { AppMessage, combineResponders } from "../messaging";
 import {
-  changePriceWorkflow,
-  getOffersWorkflow,
-} from "@app/marketplaces/allegro/workflows";
-import { AppMessage, combineResponders, createResponder } from "../messaging";
-import {
-  changePriceDriverCommand,
-  getOffersDriverCommand,
+  changePriceDriverCommandResponder,
+  getOffersDriverCommandResponder,
 } from "./driver-commands";
-import { createStore, updateState, workerStateUpdatedMessage } from "./state";
+import {
+  createWorkerStore,
+  updateState,
+  workerStateUpdatedMessage,
+} from "./state";
 
-const store = createStore();
+const store = createWorkerStore();
 
 chrome.storage.local.get((items) => {
   if (items.offers) {
@@ -33,22 +33,8 @@ store.subscribe(() => {
 });
 
 const respond = combineResponders(
-  createResponder(getOffersDriverCommand, async ({ data: { focusNewTab } }) => {
-    store.dispatch(updateState({ status: { type: "working" } }));
-    const offers = await getOffersWorkflow(focusNewTab);
-    chrome.storage.local.set({ offers });
-
-    store.dispatch(updateState({ status: { type: "idle" }, offers }));
-    return offers;
-  }),
-  createResponder(
-    changePriceDriverCommand,
-    async ({ data: { newPrice, offerEditUrl, focusNewTab } }) => {
-      store.dispatch(updateState({ status: { type: "working" } }));
-      await changePriceWorkflow({ newPrice, offerEditUrl, focusNewTab });
-      store.dispatch(updateState({ status: { type: "idle" } }));
-    }
-  )
+  changePriceDriverCommandResponder(store),
+  getOffersDriverCommandResponder(store)
 );
 
 chrome.runtime.onConnect.addListener((port) => {
