@@ -7,48 +7,46 @@ import {
   changePriceDriverCommand,
   getOffersDriverCommand,
 } from "./driver-commands";
-import { WorkerState, workerStateUpdatedMessage } from "./state";
+import { createStore, updateState, workerStateUpdatedMessage } from "./state";
+
+const store = createStore();
 
 chrome.storage.local.get((items) => {
   if (items.offers) {
-    updateWorkerState({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      offers: items.offers,
-    });
+    store.dispatch(
+      updateState({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        offers: items.offers,
+      })
+    );
   }
 });
 
-let workerState: WorkerState = { status: { type: "idle" } };
+// TODO: extract a "ports notifier" class that encapsulates the logic in 1 place
 /** Ports to notify about worker state updates. I.e. any connected port */
 const portsToNotify: Set<chrome.runtime.Port> = new Set();
 
-function updateWorkerState(stateUpdate: Partial<WorkerState>) {
-  workerState = {
-    ...workerState,
-    ...stateUpdate,
-  };
-
+store.subscribe(() => {
   portsToNotify.forEach((port) =>
-    port.postMessage(workerStateUpdatedMessage.create(workerState))
+    port.postMessage(workerStateUpdatedMessage.create(store.getState()))
   );
-}
+});
 
 const respond = combineResponders(
   createResponder(getOffersDriverCommand, async ({ data: { focusNewTab } }) => {
-    updateWorkerState({ status: { type: "working" } });
+    store.dispatch(updateState({ status: { type: "working" } }));
     const offers = await getOffersWorkflow(focusNewTab);
     chrome.storage.local.set({ offers });
 
-    updateWorkerState({ status: { type: "idle" }, offers });
+    store.dispatch(updateState({ status: { type: "idle" }, offers }));
     return offers;
   }),
   createResponder(
     changePriceDriverCommand,
     async ({ data: { newPrice, offerEditUrl, focusNewTab } }) => {
-      console.log("got change price command");
-      updateWorkerState({ status: { type: "working" } });
+      store.dispatch(updateState({ status: { type: "working" } }));
       await changePriceWorkflow({ newPrice, offerEditUrl, focusNewTab });
-      updateWorkerState({ status: { type: "idle" } });
+      store.dispatch(updateState({ status: { type: "idle" } }));
     }
   )
 );
@@ -60,10 +58,10 @@ chrome.runtime.onConnect.addListener((port) => {
   });
 
   // Initial state update
-  port.postMessage(workerStateUpdatedMessage.create(workerState));
+  port.postMessage(workerStateUpdatedMessage.create(store.getState()));
 
   port.onMessage.addListener((message: AppMessage) => {
-    if (workerState.status.type === "working") {
+    if (store.getState().status.type === "working") {
       console.error("Received message", message, "when worker was working");
       return;
     }

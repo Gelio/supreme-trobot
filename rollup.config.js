@@ -32,6 +32,7 @@ export default Object.keys(inputFiles).map((inputName) => {
       alias({ entries: { "@app": path.resolve(projectRoot, "src") } }),
       replace({
         ...getSnowpackEnvironmentVariables(),
+        "process.env.NODE_ENV": false,
         preventAssignment: true,
       }),
     ],
