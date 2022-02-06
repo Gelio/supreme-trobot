@@ -1,4 +1,4 @@
-<script lang="typescript">
+<script lang="ts">
   import { changePrice, connect, reloadExtension, scanAllegro } from "./popup";
   import { onMount } from "svelte";
   import type { WorkerState } from "./worker";
