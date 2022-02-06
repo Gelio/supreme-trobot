@@ -15,6 +15,7 @@
     "format": "npm run format:base -- --write"
   },
   "dependencies": {
+    "fp-ts": "^2.11.8",
     "redux": "^4.1.2",
     "rxjs": "^7.5.2",
     "svelte": "^3.46.4",
