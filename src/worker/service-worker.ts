@@ -1,4 +1,7 @@
-import { AppMessage, combineResponders } from "../messaging";
+import { either } from "fp-ts";
+import { pipe } from "fp-ts/function";
+import { finalize, map } from "rxjs";
+import { combineResponders, getPortMessage$ } from "../messaging";
 import {
   changePriceDriverCommandResponder,
   getOffersDriverCommandResponder,
@@ -39,24 +42,60 @@ const respond = combineResponders(
 
 chrome.runtime.onConnect.addListener((port) => {
   portsToNotify.add(port);
-  port.onDisconnect.addListener(() => {
-    portsToNotify.delete(port);
-  });
+  getPortMessage$(port)
+    .pipe(
+      finalize(() => {
+        portsToNotify.delete(port);
+      }),
+      map((messageResult) =>
+        pipe(
+          messageResult,
+          either.mapLeft(
+            (lastError) =>
+              ({
+                type: "chrome-error",
+                error: lastError,
+              } as const)
+          ),
+          either.filterOrElseW(
+            // NOTE: type inference does not work when the parameter is not specified
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            (_message) => store.getState().status.type === "idle",
+            (message) =>
+              ({
+                type: "worker-busy",
+                receivedMessage: message,
+              } as const)
+          )
+        )
+      )
+    )
+    .subscribe((messageResult) =>
+      pipe(
+        messageResult,
+        either.match(
+          (error) => {
+            if (error.type === "chrome-error") {
+              console.error("Error in port", error.error);
+            } else if (error.type === "worker-busy") {
+              console.warn(
+                "Recevied message while the worker was busy. Message:",
+                error.receivedMessage
+              );
+            }
+          },
+          (message) => {
+            if (!respond(port, message)) {
+              console.error(
+                "Message was not handled by registered responders",
+                message
+              );
+            }
+          }
+        )
+      )
+    );
 
   // Initial state update
   port.postMessage(workerStateUpdatedMessage.create(store.getState()));
-
-  port.onMessage.addListener((message: AppMessage) => {
-    if (store.getState().status.type === "working") {
-      console.error("Received message", message, "when worker was working");
-      return;
-    }
-
-    if (!respond(port, message)) {
-      console.error(
-        "Message was not handled by registered responders",
-        message
-      );
-    }
-  });
 });

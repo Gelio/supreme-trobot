@@ -1,5 +1,7 @@
 import { tabReadyPageMessage } from "@app/marketplaces/common/messaging";
-import { AppMessage, combineResponders } from "@app/messaging";
+import { combineResponders, getPortMessage$ } from "@app/messaging";
+import { either } from "fp-ts";
+import { pipe } from "fp-ts/function";
 import {
   changePricePageCommand,
   getSingleOffersPagePageCommand,
@@ -18,21 +20,27 @@ const respond = combineResponders(
 
 chrome.runtime.onConnect.addListener((port) => {
   // TODO: validate port.sender.id (should match the extension ID)
-  const listener = (message: AppMessage) => {
-    console.log("Handling message", message);
 
-    if (!respond(port, message)) {
-      console.error(
-        "Message was not handled by registered responders",
-        message
-      );
-    }
-  };
+  getPortMessage$(port).subscribe((messageResult) =>
+    pipe(
+      messageResult,
+      either.match(
+        (error) => {
+          console.error("Error from Chrome port", error);
+        },
+        (message) => {
+          console.log("Handling message", message);
 
-  port.onMessage.addListener(listener);
-  port.onDisconnect.addListener(() => {
-    port.onMessage.removeListener(listener);
-  });
+          if (!respond(port, message)) {
+            console.error(
+              "Message was not handled by registered responders",
+              message
+            );
+          }
+        }
+      )
+    )
+  );
 });
 
 chrome.runtime.sendMessage(tabReadyPageMessage.create());
