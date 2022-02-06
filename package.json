@@ -41,7 +41,7 @@
     "dotenv": "^8.2.0",
     "eslint": "^7.25.0",
     "eslint-plugin-svelte3": "^3.2.0",
-    "prettier": "^2.2.1",
+    "prettier": "^2.5.1",
     "rollup": "^2.44.0",
     "snowpack": "^3.0.1",
     "svelte-preprocess": "^4.0.8",
