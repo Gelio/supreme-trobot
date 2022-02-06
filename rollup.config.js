@@ -12,6 +12,8 @@ const inputFiles = {
   "service-worker": "src/worker/service-worker.ts",
 };
 
+const snowpackEnvironmentVariables = getSnowpackEnvironmentVariables();
+
 /**
  * NOTE: use multiple configs to inline all dependencies in each output file,
  * without creating common chunks
@@ -31,7 +33,7 @@ export default Object.keys(inputFiles).map((inputName) => {
       nodeResolve(),
       alias({ entries: { "@app": path.resolve(projectRoot, "src") } }),
       replace({
-        ...getSnowpackEnvironmentVariables(),
+        ...snowpackEnvironmentVariables,
         "process.env.NODE_ENV": false,
         preventAssignment: true,
       }),
@@ -43,6 +45,14 @@ export default Object.keys(inputFiles).map((inputName) => {
 
 function getSnowpackEnvironmentVariables() {
   const environmentVariables = dotenv.config();
+  if (environmentVariables.error) {
+    console.warn(
+      ".env file not detected. Skipping inlining environment variables. This will cause runtime errors."
+    );
+    console.warn(environmentVariables.error);
+    return {};
+  }
+
   const snowpackEnvironmentVariables = {};
 
   Object.keys(environmentVariables.parsed)
