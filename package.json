@@ -9,7 +9,7 @@
     "test": "web-test-runner \"src/**/*.test.ts\"",
     "check-types": "tsc --noEmit",
     "check-types:watch": "npm run check-types -- --watch",
-    "lint": "eslint src",
+    "lint": "eslint src ./*.js",
     "format:base": "prettier src './*.js' package.json tsconfig.json",
     "format:check": "npm run format:base -- --check",
     "format": "npm run format:base -- --write"
