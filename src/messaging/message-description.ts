@@ -7,7 +7,7 @@ export interface AppMessageDescription<T extends string, Data> {
 }
 
 export const createMessageDescription = <
-  // NOTE: order of generic paramters allows easily specifying the Data and inferring T
+  // NOTE: order of generic parameters allows easily specifying the Data and inferring T
   Data = void,
   T extends string = string
 >(
