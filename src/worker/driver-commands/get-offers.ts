@@ -14,7 +14,7 @@ export const getOffersDriverCommandResponder = (store: WorkerStore) =>
   createResponder(getOffersDriverCommand, async ({ data: { focusNewTab } }) => {
     store.dispatch(updateState({ status: { type: "working" } }));
     const offers = await getOffersWorkflow(focusNewTab);
-    chrome.storage.local.set({ offers });
+    void chrome.storage.local.set({ offers });
 
     store.dispatch(updateState({ status: { type: "idle" }, offers }));
     return offers;

@@ -17,39 +17,41 @@ export type AppRequestResponder = (
   message: AppMessage<string, unknown>
 ) => null | Promise<void>;
 
-export const createResponder = <Name extends string, R1D, R2D>(
-  messagePair: AppRequestResponsePair<Name, R1D, R2D>,
-  handler: AppRequestHandler<typeof messagePair>
-): AppRequestResponder => (port, message) => {
-  if (!messagePair.request.is(message)) {
-    return null;
-  }
-
-  // Create an initial promise to promisify the `handler`'s return type
-  return Promise.resolve()
-    .then(() => handler(message))
-    .then((responseData) => {
-      const response = messagePair.response.create(responseData);
-      port.postMessage(response);
-    })
-    .catch((error) => {
-      const errorMessage: AppErrorMessage = {
-        type: "ERROR",
-        data: error,
-      };
-      port.postMessage(errorMessage);
-    });
-};
-
-export const combineResponders = (
-  ...responders: AppRequestResponder[]
-): AppRequestResponder => (port, message) => {
-  for (const respond of responders) {
-    const respondResult = respond(port, message);
-    if (respondResult) {
-      return respondResult;
+export const createResponder =
+  <Name extends string, R1D, R2D>(
+    messagePair: AppRequestResponsePair<Name, R1D, R2D>,
+    handler: AppRequestHandler<typeof messagePair>
+  ): AppRequestResponder =>
+  (port, message) => {
+    if (!messagePair.request.is(message)) {
+      return null;
     }
-  }
 
-  return null;
-};
+    // Create an initial promise to promisify the `handler`'s return type
+    return Promise.resolve()
+      .then(() => handler(message))
+      .then((responseData) => {
+        const response = messagePair.response.create(responseData);
+        port.postMessage(response);
+      })
+      .catch((error) => {
+        const errorMessage: AppErrorMessage = {
+          type: "ERROR",
+          data: error,
+        };
+        port.postMessage(errorMessage);
+      });
+  };
+
+export const combineResponders =
+  (...responders: AppRequestResponder[]): AppRequestResponder =>
+  (port, message) => {
+    for (const respond of responders) {
+      const respondResult = respond(port, message);
+      if (respondResult) {
+        return respondResult;
+      }
+    }
+
+    return null;
+  };

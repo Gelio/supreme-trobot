@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import typescript from "@rollup/plugin-typescript";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import alias from "@rollup/plugin-alias";
@@ -22,6 +23,7 @@ export default Object.keys(inputFiles).map((inputName) => {
   /** @type {import('rollup').RollupOptions} */
   const config = {
     input: {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       [inputName]: inputFiles[inputName],
     },
     output: {
