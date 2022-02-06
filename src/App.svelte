@@ -2,6 +2,7 @@
   import { changePrice, connect, reloadExtension, scanAllegro } from "./popup";
   import { onMount } from "svelte";
   import type { WorkerState } from "./worker";
+  import type { Offer } from "./marketplaces/common/messaging";
 
   let workerState: WorkerState | null = null;
   const isExtensionPage = window.location.search.includes("fullpage");
@@ -12,6 +13,9 @@
       workerState = state;
     });
   });
+
+  const changeOfferPrice = (offer: Offer) =>
+    changePrice(offer, offer.price, isExtensionPage);
 </script>
 
 <div class="App">
@@ -34,9 +38,7 @@
           <!-- Unsafe mutation of the offers array. TODO: use local state for the input -->
 
           <input bind:value={offer.price} />
-          <button on:click={() => changePrice(offer, offer.price, isExtensionPage)}
-            >Change price</button
-          >
+          <button on:click={() => changeOfferPrice(offer)}>Change price</button>
         </li>
       {/each}
     </ul>

@@ -30,7 +30,7 @@ export const waitFor = async <Ret>(
     );
     if (result) {
       // NOTE: assertion is safe, because truthiness is verified in this if
-      return result as NonNullable<Ret>;
+      return (result as unknown) as NonNullable<Ret>;
     }
 
     intermediateResults.push(result);
