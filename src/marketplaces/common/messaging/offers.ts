@@ -11,3 +11,9 @@ export interface OffersPage {
   currentPage: number;
   totalPages: number;
 }
+
+/**
+ * Workaround for type-only files in snowpack
+ * @see https://github.com/withastro/snowpack/discussions/1589#discussioncomment-130176
+ */
+export {};

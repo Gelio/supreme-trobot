@@ -5,6 +5,7 @@
     "target": "esnext",
     "moduleResolution": "node",
     "jsx": "preserve",
+    "isolatedModules": true,
     "baseUrl": "./",
     /* paths - import rewriting/resolving */
     "paths": {
