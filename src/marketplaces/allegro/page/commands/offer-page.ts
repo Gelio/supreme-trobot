@@ -22,18 +22,17 @@ export const changePricePageCommand = createPageCommandWithHandler<
   priceInput.dispatchEvent(new Event("input", { bubbles: true }));
 });
 
-export const saveChangesPageCommand = createPageCommandWithHandler<"PAGE/SAVE_CHANGES">(
-  "PAGE/SAVE_CHANGES"
-)(() => {
-  const saveChangesButton = document.querySelector<HTMLElement>(
-    'button[data-testid="offer-submit-button"]'
-  );
-  if (!saveChangesButton) {
-    throw new Error("Cannot find the 'Save changes' button");
-  }
+export const saveChangesPageCommand =
+  createPageCommandWithHandler<"PAGE/SAVE_CHANGES">("PAGE/SAVE_CHANGES")(() => {
+    const saveChangesButton = document.querySelector<HTMLElement>(
+      'button[data-testid="offer-submit-button"]'
+    );
+    if (!saveChangesButton) {
+      throw new Error("Cannot find the 'Save changes' button");
+    }
 
-  saveChangesButton.click();
-});
+    saveChangesButton.click();
+  });
 
 export const verifyPriceChangedPageCommand = createPageCommandWithHandler<
   "PAGE/VERIFY_PRICE_CHANGED",

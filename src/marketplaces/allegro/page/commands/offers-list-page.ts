@@ -63,9 +63,8 @@ export const getPaginationState = () => {
     throw new Error("Cannot find pagination wrapper");
   }
 
-  const currentPageInput = paginationWrapper.querySelector<HTMLInputElement>(
-    'input[name="page"]'
-  );
+  const currentPageInput =
+    paginationWrapper.querySelector<HTMLInputElement>('input[name="page"]');
   if (!currentPageInput) {
     throw new Error("Cannot find current page input");
   }
@@ -85,15 +84,15 @@ export const getPaginationState = () => {
   };
 };
 
-export const goToNextPagePageCommand = createPageCommandWithHandler<"PAGE/GO_TO_NEXT_PAGE">(
-  "PAGE/GO_TO_NEXT_PAGE"
-)(() => {
-  const nextPageButton = document.querySelector<HTMLAnchorElement>(
-    ".pagination__next"
-  );
-  if (!nextPageButton) {
-    throw new Error("Cannot find the next page button");
-  }
+export const goToNextPagePageCommand =
+  createPageCommandWithHandler<"PAGE/GO_TO_NEXT_PAGE">("PAGE/GO_TO_NEXT_PAGE")(
+    () => {
+      const nextPageButton =
+        document.querySelector<HTMLAnchorElement>(".pagination__next");
+      if (!nextPageButton) {
+        throw new Error("Cannot find the next page button");
+      }
 
-  return nextPageButton.click();
-});
+      return nextPageButton.click();
+    }
+  );
