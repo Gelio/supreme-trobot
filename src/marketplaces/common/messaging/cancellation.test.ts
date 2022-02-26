@@ -109,4 +109,76 @@ describe("cancellation", () => {
 
     console.log(res);
   });
+
+  it("should work with concurrent tasks", async () => {
+    /**
+     * When running multiple tasks concurrently (like `Promise.all`),
+     * if one task fails, other tasks should be aborted, because the overall
+     * computation fails.
+     */
+
+    const onFailureCancellationContext = getCancellationContext<void>();
+    const getSuccessTask = flow(either.right, task.of);
+    const getFailureTask = flow(either.left, task.of);
+
+    let slowSuccessRan = false;
+    let superFastSuccessRan = false;
+    let fastFailureRan = false;
+
+    const slowSuccess = pipe(
+      cancelOnSignal(onFailureCancellationContext.cancellationSignal)(
+        getSuccessTask(5)
+      ),
+      task.delay(100),
+      cancellableChainK(
+        onFailureCancellationContext.cancellationSignal,
+        flow(
+          task.of,
+          task.chainFirstIOK(() => () => {
+            slowSuccessRan = true;
+          })
+        )
+      )
+    );
+    const superFastSuccess = pipe(
+      cancelOnSignal(onFailureCancellationContext.cancellationSignal)(
+        getSuccessTask(10)
+      ),
+      task.delay(1),
+      cancellableChainK(
+        onFailureCancellationContext.cancellationSignal,
+        flow(
+          task.of,
+          task.chainFirstIOK(() => () => {
+            superFastSuccessRan = true;
+          })
+        )
+      )
+    );
+    const fastFailure = pipe(
+      cancelOnSignal(onFailureCancellationContext.cancellationSignal)(
+        getFailureTask(-1)
+      ),
+      task.delay(10),
+      cancellableChainK(
+        onFailureCancellationContext.cancellationSignal,
+        flow(
+          task.of,
+          task.chainFirstIOK(() => () => {
+            fastFailureRan = true;
+          })
+        )
+      )
+    );
+
+    await combineCancellableTasks(
+      onFailureCancellationContext.cancel,
+      undefined as void,
+      [slowSuccess, superFastSuccess, fastFailure]
+    )();
+    console.assert(fastFailureRan);
+    console.assert(superFastSuccessRan);
+    console.assert(!slowSuccessRan);
+    console.log("ok!");
+  });
 });
