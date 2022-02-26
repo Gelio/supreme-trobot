@@ -1,16 +1,38 @@
-import { closeTab, createTab, updateTab } from "@app/chrome-facade";
+import { closeTab, updateTabTask, withNewTab } from "@app/chrome-facade";
 import {
   executeCommand,
   Offer,
   waitForTabToBeReady,
 } from "@app/marketplaces/common/messaging";
+import type { cancellableTask } from "@app/marketplaces/common/messaging/cancellation-module";
 import { waitFor } from "@app/marketplaces/common/wait-for";
+import { either, task, taskEither } from "fp-ts";
+import { sequenceT } from "fp-ts/lib/Apply";
+import { pipe } from "fp-ts/lib/function";
 import {
   getSingleOffersPagePageCommand,
   goToNextPagePageCommand,
 } from "../page/commands";
 
 const offersPageUrl = "https://allegrolokalnie.pl/konto/oferty/aktywne";
+
+const withNewTabAtUrl = <CancellationReason>(
+  url: string,
+  properties: chrome.tabs.CreateProperties,
+  cancellationSignal: cancellableTask.CancellationSignal<CancellationReason>
+): task.Task<cancellableTask.Cancellable<CancellationReason, number>> =>
+  withNewTab(properties, (tabId) =>
+    pipe(
+      sequenceT(taskEither.ApplyPar)(
+        waitForTabToBeReady(tabId, cancellationSignal),
+        pipe(
+          updateTabTask(tabId, { url }),
+          task.map(() => either.right(undefined))
+        )
+      ),
+      taskEither.map(() => tabId)
+    )
+  );
 
 export async function getOffersWorkflow(
   focusNewTab: boolean
