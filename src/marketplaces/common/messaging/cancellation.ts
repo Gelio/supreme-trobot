@@ -1,5 +1,6 @@
 import { either, io, task, taskEither } from "fp-ts";
 import { pipe } from "fp-ts/function";
+import { Observable, take } from "rxjs";
 
 export type Cancellable<Reason, T> = either.Either<Reason, T>;
 export type CancellationSignal<Reason> = task.Task<Reason>;
@@ -42,3 +43,36 @@ export const cancellableChainK =
       fa,
       taskEither.chain((a) => cancelOnSignal(signal)(f(a)))
     );
+
+/**
+ * Extracts the first value from an observable.
+ * Unsubscribes from the observable if the cancellation signal occurs.
+ */
+export const fromObservable =
+  <Reason, T>(
+    signal: CancellationSignal<Reason>,
+    observable: Observable<T>
+  ): task.Task<Cancellable<Reason, T>> =>
+  () =>
+    new Promise((resolve) => {
+      const singleEmissionObservable = observable.pipe(take(1));
+
+      const subscription = singleEmissionObservable.subscribe({
+        next: (value) => {
+          resolve(either.right(value));
+        },
+        error: () => {
+          // no-op, expect all errors to be handled in another way
+        },
+        complete: () => {
+          console.error(
+            "Observable completed without emitting a result. Cannot continue the Task chain."
+          );
+        },
+      });
+
+      void signal().then((reason) => {
+        subscription.unsubscribe();
+        resolve(either.left(reason));
+      });
+    });

@@ -1,3 +1,4 @@
+import { expect } from "chai";
 import {
   either,
   eitherT,
@@ -8,10 +9,12 @@ import {
   taskOption,
 } from "fp-ts";
 import { flow, pipe } from "fp-ts/function";
+import { Observable, of } from "rxjs";
 import {
   cancellableChainK,
   getCancellationContext,
   cancelOnSignal,
+  fromObservable,
 } from "./cancellation";
 
 describe("cancellation", () => {
@@ -105,5 +108,42 @@ describe("cancellation", () => {
     )();
 
     console.log(res);
+  });
+});
+
+describe("fromObservable", () => {
+  it("should return the emitted element", async () => {
+    const result = await fromObservable(task.never, of(1))();
+    expect(result).to.deep.equal(either.right(1));
+  });
+
+  it("should cancel the subscription on cancellation signal", async () => {
+    const cancellationContext = getCancellationContext<"cancelled">();
+
+    let observersCount = 0;
+    const observable = new Observable(() => {
+      // NOTE: this observable never emits on purpose
+      observersCount++;
+
+      return () => {
+        observersCount--;
+      };
+    });
+
+    const resultPromise = fromObservable(
+      cancellationContext.cancellationSignal,
+      observable
+    )();
+
+    expect(observersCount).to.equal(1);
+    cancellationContext.cancel("cancelled")();
+
+    // NOTE: one more tick is required to all pending promise callbacks
+    // and actually unsubscribe
+    await new Promise((r) => r(undefined));
+
+    expect(observersCount).to.equal(0);
+    const result = await resultPromise;
+    expect(result).to.deep.equal(either.left("cancelled"));
   });
 });
