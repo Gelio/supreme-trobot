@@ -28,7 +28,10 @@ module.exports = {
       },
     },
   ],
-  rules: {},
+  rules: {
+    // NOTE: TypeScript is used to detect unused variables
+    "@typescript-eslint/no-unused-vars": "off",
+  },
   settings: {
     "svelte3/typescript": () => require("typescript"),
   },
