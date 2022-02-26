@@ -1,4 +1,4 @@
-import { apply, either, io, nonEmptyArray, task, taskEither } from "fp-ts";
+import { either, io, task, taskEither } from "fp-ts";
 import { pipe } from "fp-ts/function";
 
 export type Cancellable<Reason, T> = either.Either<Reason, T>;
@@ -42,36 +42,3 @@ export const cancellableChainK =
       fa,
       taskEither.chain((a) => cancelOnSignal(signal)(f(a)))
     );
-
-export const combineCancellableTasks = <
-  Reason,
-  Tasks extends nonEmptyArray.NonEmptyArray<
-    task.Task<Cancellable<Reason, either.Either<unknown, unknown>>>
-  >
->(
-  cancel: io.IO<void>,
-  reason: Reason,
-  tasks: Tasks
-  // NOTE: the return type could also be task.Task<Cencellable<Reason, either.Either<any, any>>[]> (array of cancellable results)
-): task.Task<
-  nonEmptyArray.NonEmptyArray<Cancellable<Reason, either.Either<any, any>>>
-> =>
-  pipe(
-    tasks,
-    nonEmptyArray.map(
-      taskEither.chainIOEitherK((result) =>
-        pipe(
-          result,
-          either.match(
-            () =>
-              pipe(
-                cancel,
-                io.map(() => either.left(reason))
-              ),
-            (res) => io.of(either.right(either.right(res)))
-          )
-        )
-      )
-    ),
-    (b) => apply.sequenceT(task.ApplyPar)(b as any)
-  );
