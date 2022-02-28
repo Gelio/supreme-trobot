@@ -1,41 +1,68 @@
-import type {
+import {
   AppMessage,
   AppRequestResponsePair,
+  getPortMessage$,
   MessageFromDescription,
 } from "@app/messaging";
+import { either, task, taskEither } from "fp-ts";
+import { flow, pipe } from "fp-ts/function";
+import { cancellableTask } from "./cancellation-module";
 
-export function executeCommand<
+export type ExecuteCommandError =
+  | {
+      type: "chrome-error";
+      error: chrome.runtime.LastError;
+    }
+  | {
+      type: "unexpected-message";
+      message: AppMessage;
+    };
+
+export const executeCommand = <
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  P extends AppRequestResponsePair<string, any, any>
->(
-  tabId: number,
-  requestResponsePair: P,
-  requestData: MessageFromDescription<P["request"]>["data"]
-): Promise<MessageFromDescription<P["response"]>> {
-  return new Promise((resolve, reject) => {
-    const port = chrome.tabs.connect(tabId);
+  P extends AppRequestResponsePair<string, any, any>,
+  CancellationReason
+>({
+  tabId,
+  cancellationSignal,
+  requestResponsePair,
+  requestData,
+}: {
+  tabId: number;
+  cancellationSignal: cancellableTask.CancellationSignal<CancellationReason>;
+  requestResponsePair: P;
+  requestData: MessageFromDescription<P["request"]>["data"];
+}) => {
+  const port = chrome.tabs.connect(tabId);
+  const portMessage$ = getPortMessage$(port);
 
-    port.onDisconnect.addListener(() => {
-      console.log("Port disconnected");
-      if (chrome.runtime.lastError) {
-        console.log("Chrome runtime error", chrome.runtime.lastError);
-        reject(chrome.runtime.lastError);
-        return;
-      }
-      reject(new Error("Port closed"));
-    });
-    port.onMessage.addListener((message: AppMessage) => {
-      if (!requestResponsePair.response.is(message)) {
-        reject(
-          new Error(`Unexpected message received of type: ${message.type}`)
-        );
-        return;
-      }
-
-      // NOTE: TS assumes there cannot be such a message, problems with generics
-      resolve(message as MessageFromDescription<P["response"]>);
-    });
-
-    port.postMessage(requestResponsePair.request.create(requestData));
-  });
-}
+  return pipe(
+    cancellableTask.fromObservable(cancellationSignal, portMessage$),
+    taskEither.map(
+      flow(
+        either.mapLeft(
+          (chromeError): ExecuteCommandError => ({
+            type: "chrome-error",
+            error: chromeError,
+          })
+        ),
+        either.filterOrElse(
+          requestResponsePair.response.is,
+          (message): ExecuteCommandError => ({
+            type: "unexpected-message",
+            message,
+          })
+        ),
+        either.map(
+          // NOTE: TS assumes there cannot be such a message, problems with generics
+          (message) => message as MessageFromDescription<P["response"]>
+        )
+      )
+    ),
+    task.apFirst(
+      task.fromIO(() => {
+        port.postMessage(requestResponsePair.request.create(requestData));
+      })
+    )
+  );
+};
