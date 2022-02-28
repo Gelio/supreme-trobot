@@ -1,12 +1,15 @@
-import { closeTab, updateTabTask, withNewTab } from "@app/chrome-facade";
+import { updateTabTask, withNewTab } from "@app/chrome-facade";
 import {
   executeCommand,
+  ExecuteCommandError,
   Offer,
   waitForTabToBeReady,
 } from "@app/marketplaces/common/messaging";
-import type { cancellableTask } from "@app/marketplaces/common/messaging/cancellation-module";
-import { waitFor } from "@app/marketplaces/common/wait-for";
-import { either, task, taskEither } from "fp-ts";
+import {
+  cancellableTask,
+  cancellableTaskEither,
+} from "@app/marketplaces/common/messaging/cancellation-module";
+import { array, either, eitherT, task, taskEither } from "fp-ts";
 import { sequenceT } from "fp-ts/lib/Apply";
 import { pipe } from "fp-ts/lib/function";
 import {
@@ -16,11 +19,14 @@ import {
 
 const offersPageUrl = "https://allegrolokalnie.pl/konto/oferty/aktywne";
 
-const withNewTabAtUrl = <CancellationReason>(
+const withNewTabAtUrl = <CancellationReason, T>(
   url: string,
   properties: chrome.tabs.CreateProperties,
-  cancellationSignal: cancellableTask.CancellationSignal<CancellationReason>
-): task.Task<cancellableTask.Cancellable<CancellationReason, number>> =>
+  cancellationSignal: cancellableTask.CancellationSignal<CancellationReason>,
+  callback: (
+    tabId: number
+  ) => task.Task<cancellableTask.Cancellable<CancellationReason, T>>
+): task.Task<cancellableTask.Cancellable<CancellationReason, T>> =>
   withNewTab(properties, (tabId) =>
     pipe(
       sequenceT(taskEither.ApplyPar)(
@@ -30,54 +36,61 @@ const withNewTabAtUrl = <CancellationReason>(
           task.map(() => either.right(undefined))
         )
       ),
-      taskEither.map(() => tabId)
+      taskEither.map(() => tabId),
+      taskEither.chain(callback)
     )
   );
 
-export async function getOffersWorkflow(
-  focusNewTab: boolean
-): Promise<Offer[]> {
-  const tab = await createTab({ active: focusNewTab });
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const tabId = tab.id!;
-
-  const tabInitiallyReady = waitForTabToBeReady(tabId);
-  await updateTab(tabId, { url: offersPageUrl });
-  await tabInitiallyReady;
-
-  const { data: initialPage } = await executeCommand(
-    tabId,
-    getSingleOffersPagePageCommand.pair,
-    undefined
+export const getOffersWorkflow = <Reason>(
+  focusNewTab: boolean,
+  cancellationSignal: cancellableTask.CancellationSignal<Reason>
+): cancellableTaskEither.CancellableTaskEither<
+  Reason,
+  ExecuteCommandError,
+  Offer[]
+> =>
+  withNewTabAtUrl(
+    offersPageUrl,
+    { active: focusNewTab },
+    cancellationSignal,
+    (tabId) =>
+      pipe(
+        executeCommand({
+          tabId,
+          cancellationSignal,
+          requestResponsePair: getSingleOffersPagePageCommand.pair,
+          requestData: undefined,
+        }),
+        eitherT.chain(taskEither.Monad)((firstPageResponse) =>
+          pipe(
+            array.sequence(cancellableTaskEither.ApplicativeSeq)([
+              cancellableTaskEither.ApplicativeSeq.of(firstPageResponse),
+              ...array.makeBy(firstPageResponse.data.totalPages - 1, () =>
+                pipe(
+                  waitForTabToBeReady(tabId, cancellationSignal),
+                  task.apFirst(
+                    task.fromIO(() => {
+                      const port = chrome.tabs.connect(tabId);
+                      port.postMessage(
+                        goToNextPagePageCommand.pair.request.create()
+                      );
+                    })
+                  ),
+                  taskEither.chain(() =>
+                    executeCommand({
+                      tabId,
+                      cancellationSignal,
+                      requestResponsePair: getSingleOffersPagePageCommand.pair,
+                      requestData: undefined,
+                    })
+                  )
+                )
+              ),
+            ]),
+            cancellableTaskEither.map(
+              array.chain((response) => response.data.offers)
+            )
+          )
+        )
+      )
   );
-  let nextPage = initialPage.currentPage + 1;
-  const totalPages = initialPage.totalPages;
-  const offers = initialPage.offers;
-
-  while (nextPage <= totalPages) {
-    const port = chrome.tabs.connect(tabId);
-    const tabReady = waitForTabToBeReady(tabId);
-    port.postMessage(goToNextPagePageCommand.pair.request.create());
-    await tabReady;
-
-    const currentPage = await waitFor(async () => {
-      const page = await executeCommand(
-        tabId,
-        getSingleOffersPagePageCommand.pair,
-        undefined
-      );
-      if (nextPage === page.data.currentPage) {
-        return page;
-      }
-      return;
-    });
-
-    offers.push(...currentPage.data.offers);
-    nextPage++;
-  }
-  console.log(offers);
-
-  await closeTab(tabId);
-
-  return offers;
-}
