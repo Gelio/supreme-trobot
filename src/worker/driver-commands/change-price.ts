@@ -1,6 +1,6 @@
 import { changePriceWorkflow } from "@app/marketplaces/allegro/workflows";
 import { createAppRequestResponsePair, createResponder } from "@app/messaging";
-import { updateState, WorkerStore } from "../state";
+import { updateState, type WorkerStore } from "../state";
 
 export const changePriceDriverCommand = createAppRequestResponsePair<
   "DRIVER/CHANGE_PRICE",

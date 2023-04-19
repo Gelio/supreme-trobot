@@ -1,7 +1,7 @@
 import {
   createPageCommandWithHandler,
-  Offer,
-  OffersPage,
+  type Offer,
+  type OffersPage,
 } from "@app/marketplaces/common/messaging";
 
 /**

@@ -1,4 +1,9 @@
-import { Action, createStore as createReduxStore, Reducer, Store } from "redux";
+import {
+  type Action,
+  createStore as createReduxStore,
+  type Reducer,
+  type Store,
+} from "redux";
 
 import type { Offer } from "@app/marketplaces/common/messaging";
 import { createMessageDescription } from "@app/messaging";

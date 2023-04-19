@@ -1,5 +1,5 @@
 import {
-  AppRequestHandler,
+  type AppRequestHandler,
   createAppRequestResponsePair,
   createResponder,
 } from "@app/messaging";

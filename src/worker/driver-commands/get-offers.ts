@@ -1,7 +1,7 @@
 import { getOffersWorkflow } from "@app/marketplaces/allegro/workflows";
 import type { Offer } from "@app/marketplaces/common/messaging";
 import { createAppRequestResponsePair, createResponder } from "@app/messaging";
-import { updateState, WorkerStore } from "../state";
+import { updateState, type WorkerStore } from "../state";
 
 export const getOffersDriverCommand = createAppRequestResponsePair<
   "DRIVER/GET_OFFERS",

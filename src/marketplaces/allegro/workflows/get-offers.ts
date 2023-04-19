@@ -1,7 +1,7 @@
 import { closeTab, createTab, updateTab } from "@app/chrome-facade";
 import {
   executeCommand,
-  Offer,
+  type Offer,
   waitForTabToBeReady,
 } from "@app/marketplaces/common/messaging";
 import { waitFor } from "@app/marketplaces/common/wait-for";

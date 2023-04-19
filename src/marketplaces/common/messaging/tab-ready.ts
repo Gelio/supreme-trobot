@@ -1,6 +1,6 @@
 import { listen } from "@app/chrome-facade";
 import { extensionId } from "@app/consts";
-import { AppMessage, createMessageDescription } from "@app/messaging";
+import { type AppMessage, createMessageDescription } from "@app/messaging";
 
 export const tabReadyPageMessage = createMessageDescription("PAGE/TAB_READY");
 

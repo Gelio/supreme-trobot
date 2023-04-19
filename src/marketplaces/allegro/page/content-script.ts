@@ -1,5 +1,5 @@
 import { tabReadyPageMessage } from "@app/marketplaces/common/messaging";
-import { AppMessage, combineResponders } from "@app/messaging";
+import { type AppMessage, combineResponders } from "@app/messaging";
 import {
   changePricePageCommand,
   getSingleOffersPagePageCommand,
@@ -35,4 +35,4 @@ chrome.runtime.onConnect.addListener((port) => {
   });
 });
 
-chrome.runtime.sendMessage(tabReadyPageMessage.create());
+void chrome.runtime.sendMessage(tabReadyPageMessage.create());

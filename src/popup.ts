@@ -4,7 +4,7 @@ import type { AppMessage } from "./messaging";
 import {
   changePriceDriverCommand,
   getOffersDriverCommand,
-  WorkerState,
+  type WorkerState,
   workerStateUpdatedMessage,
 } from "./worker";
 

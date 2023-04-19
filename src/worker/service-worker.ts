@@ -1,4 +1,4 @@
-import { AppMessage, combineResponders } from "../messaging";
+import { type AppMessage, combineResponders } from "../messaging";
 import {
   changePriceDriverCommandResponder,
   getOffersDriverCommandResponder,

@@ -1,5 +1,5 @@
 import {
-  AppMessageDescription,
+  type AppMessageDescription,
   createMessageDescription,
 } from "../message-description";
 
